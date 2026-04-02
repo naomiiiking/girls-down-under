@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Girls Down Under · 2027</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black:  #0A0A0A;
+      --white:  #FFFFFF;
+      --grey:   #888888;
+      --light:  #F2F2F2;
+      --orange: #F94500;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+      background: var(--black);
+    }
+
+    /* ─── CURSOR ─── */
+    .cur {
+      position: fixed; width: 8px; height: 8px;
+      border-radius: 50%; background: var(--orange);
+      pointer-events: none; z-index: 99999;
+      transform: translate(-50%,-50%);
+    }
+    .cur-ring {
+      position: fixed; width: 28px; height: 28px;
+      border: 1px solid rgba(10,10,10,.25); border-radius: 50%;
+      pointer-events: none; z-index: 99998;
+      transform: translate(-50%,-50%);
+    }
+
+    /* ─── PROGRESS ─── */
+    .progress {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 2px; z-index: 9990;
+      background: #e8e8e8;
+    }
+    .progress-fill {
+      height: 100%; background: var(--orange);
+      transform-origin: left; transform: scaleX(0);
+    }
+
+    /* ─── LOCATION NAV ─── */
+    .loc-nav {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 500;
+      display: flex; align-items: center; gap: 2rem;
+    }
+    .loc-nav-item {
+      font-family: 'Jost', sans-serif; font-weight: 300;
+      font-size: .6rem; letter-spacing: .4em; text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+      border: none; background: none; cursor: pointer;
+      transition: color .3s; padding: 0;
+    }
+    .loc-nav-item.active { color: white; }
+    .loc-nav-sep {
+      width: 1px; height: 12px; background: rgba(255,255,255,.2);
+    }
+
+    /* ─── SLIDE NAV DOTS (right side) ─── */
+    .slide-dots {
+      position: fixed; right: 1.75rem; top: 50%;
+      transform: translateY(-50%);
+      z-index: 500; display: flex;
+      flex-direction: column; gap: .6rem; align-items: center;
+    }
+    .sdot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(10,10,10,.2);
+      border: none; outline: none; cursor: pointer;
+      transition: all .3s; padding: 0;
+    }
+    .sdot.active { background: var(--orange); transform: scale(1.6); }
+    /* On white slides, dots should be dark */
+    body.on-white .sdot { background: rgba(10,10,10,.2); }
+    body.on-white .sdot.active { background: var(--orange); }
+    /* On dark/video slides, dots should be light */
+    body.on-dark .sdot { background: rgba(255,255,255,.3); }
+    body.on-dark .sdot.active { background: white; }
+
+    /* ═══════════════════════════════════════
+       LANDING
+    ═══════════════════════════════════════ */
+    #landing {
+      position: relative; width: 100vw; height: 100vh; overflow: hidden;
+    }
+    #landing video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; z-index: 0;
+    }
+    .land-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.1) 45%, rgba(0,0,0,.65) 100%);
+      z-index: 1;
+    }
+    .land-content {
+      position: absolute; inset: 0; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+    }
+    .land-eyebrow {
+      font-weight: 200; font-size: .7rem;
+      letter-spacing: .6em; text-transform: uppercase;
+      color: rgba(255,255,255,.65); margin-bottom: 2rem; opacity: 0;
+    }
+    .land-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(5rem, 13vw, 11rem); line-height: .82;
+      color: white; opacity: 0; transform: translateY(50px);
+      text-shadow: 0 4px 40px rgba(0,0,0,.3);
+    }
+    .land-title .acc { font-style: italic; color: #FFFDB4; }
+    .land-corner {
+      position: absolute; bottom: 2.5rem; left: 3rem; z-index: 2;
+      font-weight: 200; font-size: .65rem;
+      letter-spacing: .35em; text-transform: uppercase;
+      color: rgba(255,255,255,.4); opacity: 0;
+    }
+    .scroll-cue {
+      position: absolute; bottom: 2rem; right: 3rem; z-index: 2;
+      display: flex; flex-direction: column; align-items: flex-end;
+      gap: .5rem; opacity: 0;
+    }
+    .scroll-cue span {
+      font-weight: 200; font-size: .62rem;
+      letter-spacing: .45em; text-transform: uppercase;
+      color: rgba(255,255,255,.45);
+    }
+    .scroll-line {
+      width: 1px; height: 48px; overflow: hidden;
+      background: rgba(255,255,255,.15); position: relative;
+    }
+    .scroll-line::after {
+      content: ''; position: absolute; top: -100%; left: 0;
+      width: 100%; height: 100%; background: rgba(255,255,255,.7);
+      animation: scandown 2s ease-in-out infinite;
+    }
+    @keyframes scandown { 0%{top:-100%} 100%{top:200%} }
+
+    /* ═══════════════════════════════════════
+       WHITE SLIDES — shared base
+    ═══════════════════════════════════════ */
+    .slide {
+      position: relative; background: var(--white);
+      width: 100vw; height: 100vh;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+
+    /* Thin orange top border on every white slide */
+    .slide::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: var(--light); z-index: 3;
+    }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      position: absolute; top: 2.5rem; left: 3.5rem;
+      font-weight: 300; font-size: .6rem;
+      letter-spacing: .45em; text-transform: uppercase;
+      color: var(--grey); z-index: 3;
+      opacity: 0; transform: translateY(-8px);
+    }
+    .breadcrumb span { color: var(--orange); }
+
+    /* ── SLIDE NUMBER ── */
+    .slide-num {
+      position: absolute; bottom: 2.5rem; right: 3.5rem;
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: .85rem; color: var(--grey); z-index: 3;
+      letter-spacing: .1em;
+    }
+
+    /* ─────────────────────────────
+       INTRO SLIDES
+    ───────────────────────────── */
+    .intro-slide .inner {
+      padding: 0 3.5rem 0 3.5rem;
+      width: 100%;
+    }
+    .intro-loc {
+      font-weight: 300; font-size: .65rem;
+      letter-spacing: .55em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 1.5rem;
+      opacity: 0; transform: translateY(12px);
+    }
+    .intro-name {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(5rem, 12vw, 10.5rem); line-height: .88;
+      color: var(--black); margin-bottom: 2.5rem;
+      opacity: 0; transform: translateY(35px);
+    }
+    .intro-name em { font-style: italic; }
+    .intro-meta {
+      display: flex; align-items: center; gap: 2.5rem;
+      opacity: 0; transform: translateY(12px);
+    }
+    .intro-meta-item {
+      display: flex; flex-direction: column; gap: .3rem;
+    }
+    .intro-meta-label {
+      font-weight: 300; font-size: .58rem;
+      letter-spacing: .45em; text-transform: uppercase;
+      color: var(--grey);
+    }
+    .intro-meta-val {
+      font-weight: 300; font-size: .82rem;
+      letter-spacing: .08em; color: var(--black);
+    }
+    .intro-meta-div {
+      width: 1px; height: 36px; background: #D8D8D8;
+    }
+    .intro-desc {
+      max-width: 480px; margin-top: 2.5rem;
+      font-weight: 200; font-size: .9rem;
+      line-height: 1.8; color: #555;
+      opacity: 0; transform: translateY(12px);
+    }
+
+    /* Ghost initial letter */
+    .intro-ghost {
+      position: absolute; right: -2vw; top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: 52vw; line-height: 1; color: var(--black);
+      opacity: .03; pointer-events: none; user-select: none;
+      z-index: 0;
+    }
+
+    /* ─────────────────────────────
+       THINGS TO DO SLIDES
+    ───────────────────────────── */
+    .todo-slide .inner {
+      padding: 0 3.5rem; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center;
+    }
+    .todo-heading {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1;
+      color: var(--black);
+      opacity: 0; transform: translateY(25px);
+    }
+    .todo-heading em { font-style: italic; color: var(--orange); }
+    .todo-sub {
+      font-weight: 200; font-size: .72rem;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--grey); margin-top: .75rem;
+      opacity: 0; transform: translateY(12px);
+    }
+    .todo-list {
+      list-style: none; display: flex; flex-direction: column; gap: 0;
+    }
+    .todo-list li {
+      display: flex; align-items: baseline; gap: 1.25rem;
+      padding: .85rem 0;
+      border-bottom: 1px solid #EBEBEB;
+      opacity: 0; transform: translateX(16px);
+    }
+    .todo-list li:first-child { border-top: 1px solid #EBEBEB; }
+    .todo-num {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: .85rem; color: var(--orange);
+      min-width: 20px; letter-spacing: .05em;
+    }
+    .todo-text {
+      font-weight: 300; font-size: .87rem;
+      letter-spacing: .05em; color: var(--black); line-height: 1.5;
+    }
+    .todo-detail {
+      font-weight: 200; font-size: .73rem;
+      color: var(--grey); margin-top: .15rem;
+    }
+
+    /* ─────────────────────────────
+       PLACES TO STAY SLIDES
+    ───────────────────────────── */
+    .stay-slide .inner {
+      padding: 0 3.5rem; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center;
+    }
+    .stay-heading {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(2.8rem, 5vw, 4.5rem); line-height: 1;
+      color: var(--black);
+      opacity: 0; transform: translateY(25px);
+    }
+    .stay-heading em { font-style: italic; color: var(--orange); }
+    .stay-sub {
+      font-weight: 200; font-size: .72rem;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--grey); margin-top: .75rem;
+      opacity: 0; transform: translateY(12px);
+    }
+    .stay-cards {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .stay-card {
+      padding: 1.1rem 0;
+      border-bottom: 1px solid #EBEBEB;
+      opacity: 0; transform: translateX(16px);
+    }
+    .stay-card:first-child { border-top: 1px solid #EBEBEB; }
+    .stay-name {
+      font-weight: 400; font-size: .9rem;
+      letter-spacing: .03em; color: var(--black);
+    }
+    .stay-tags {
+      display: flex; gap: .6rem; margin-top: .35rem; flex-wrap: wrap;
+    }
+    .stay-tag {
+      font-weight: 200; font-size: .62rem;
+      letter-spacing: .25em; text-transform: uppercase;
+      color: var(--grey);
+    }
+    .stay-tag + .stay-tag::before {
+      content: '·'; margin-right: .6rem; color: #CCC;
+    }
+    .stay-vibe {
+      display: inline-block; margin-top: .4rem;
+      font-weight: 300; font-size: .72rem;
+      color: var(--orange); letter-spacing: .05em;
+    }
+
+    /* ═══════════════════════════════════════
+       OUTRO
+    ═══════════════════════════════════════ */
+    #outro {
+      width: 100vw; min-height: 55vh;
+      background: var(--black);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    #outro::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%); width: 1px; height: 70px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,.15));
+    }
+    .outro-tag {
+      font-weight: 200; font-size: .67rem;
+      letter-spacing: .55em; text-transform: uppercase;
+      color: rgba(255,255,255,.3); margin-bottom: 2rem; opacity: 0;
+    }
+    .outro-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(3.5rem, 8vw, 7rem); line-height: .88;
+      color: white; opacity: 0; transform: translateY(30px);
+    }
+    .outro-title em { font-style: italic; color: #FFFDB4; }
+    .outro-date {
+      font-weight: 200; font-size: .72rem;
+      letter-spacing: .35em; text-transform: uppercase;
+      color: rgba(255,255,255,.28); margin-top: 2rem; opacity: 0;
+    }
+
+    /* ═══════════════════════════════════════
+       MELBOURNE THINGS TO DO — CAROUSEL
+    ═══════════════════════════════════════ */
+    :root { --green: #1ACC82; }
+
+    #melb-todo {
+      flex-direction: row;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    /* Left panel */
+    .mtd-left {
+      width: 38%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5rem 3.5rem;
+      position: relative;
+      z-index: 2;
+    }
+    .mtd-eyebrow {
+      font-weight: 300; font-size: .6rem;
+      letter-spacing: .5em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 1.25rem;
+    }
+    .mtd-heading {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(3rem, 5.5vw, 5rem); line-height: .9;
+      color: var(--black);
+    }
+    .mtd-heading em { font-style: italic; color: var(--green); }
+
+    /* Pill dots */
+    .mtd-dots {
+      display: flex; flex-direction: column;
+      gap: .5rem; margin-top: 3rem;
+    }
+    .mtd-dot {
+      width: 6px; height: 6px;
+      border-radius: 3px;
+      background: #D8D8D8;
+      border: none; cursor: pointer; padding: 0;
+      transition: height .35s ease, background .35s ease;
+    }
+    .mtd-dot.active {
+      height: 22px;
+      background: var(--green);
+    }
+
+    /* Right carousel viewport */
+    .mtd-right {
+      flex: 1;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      padding: 1.5rem 1.5rem 0 1rem;
+    }
+    .mtd-track {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform .85s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+
+    /* Card */
+    .mtd-card {
+      flex-shrink: 0;
+      height: 78vh;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border: 1px solid #EBEBEB;
+      cursor: pointer;
+      transition: opacity .5s ease, border-color .4s ease;
+    }
+    .mtd-card:not(.active) { opacity: .38; }
+    .mtd-card.active { border-color: var(--green); opacity: 1; }
+
+    /* Image placeholder */
+    .mtd-img {
+      flex: 1;
+      background: #F0F0F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Subtle diagonal lines pattern for placeholder */
+    .mtd-img::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 14px,
+        rgba(0,0,0,.03) 14px,
+        rgba(0,0,0,.03) 15px
+      );
+    }
+
+    /* Card text area */
+    .mtd-info {
+      flex-shrink: 0;
+      padding: 1.5rem 2rem 1.75rem;
+      border-top: 1px solid #EBEBEB;
+    }
+    .mtd-num {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: .8rem; color: var(--green);
+      letter-spacing: .12em; display: block;
+      margin-bottom: .55rem;
+    }
+    .mtd-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: 1.75rem; line-height: 1.1;
+      color: var(--black); margin-bottom: .45rem;
+    }
+    .mtd-sub {
+      font-weight: 200; font-size: .78rem;
+      letter-spacing: .04em; color: var(--grey);
+      line-height: 1.65;
+    }
+
+    /* ─── GRAIN ─── */
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      pointer-events: none; z-index: 999999; opacity: .018;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 150px 150px;
+    }
+  </style>
+</head>
+<body class="on-dark">
+
+  <div class="cur" id="cur"></div>
+  <div class="cur-ring" id="curRing"></div>
+  <div class="progress"><div class="progress-fill" id="progFill"></div></div>
+
+  <!-- Slide dots -->
+  <nav class="slide-dots" id="slideDots">
+    <button class="sdot active" data-t="landing"></button>
+    <button class="sdot" data-t="melb-intro"></button>
+    <button class="sdot" data-t="melb-todo"></button>
+    <button class="sdot" data-t="melb-stay"></button>
+    <button class="sdot" data-t="byron-intro"></button>
+    <button class="sdot" data-t="byron-todo"></button>
+    <button class="sdot" data-t="byron-stay"></button>
+    <button class="sdot" data-t="gc-intro"></button>
+    <button class="sdot" data-t="gc-todo"></button>
+    <button class="sdot" data-t="gc-stay"></button>
+    <button class="sdot" data-t="outro"></button>
+  </nav>
+
+  <!-- ══════════════════════════════
+       LANDING
+  ══════════════════════════════ -->
+  <section id="landing">
+    <video autoplay muted loop playsinline>
+      <source src="./landingpage.mp4" type="video/mp4">
+    </video>
+    <div class="land-overlay"></div>
+    <div class="land-content">
+      <p class="land-eyebrow">A Journey Down Under · 2027</p>
+      <h1 class="land-title">Girls<br><span class="acc">Down</span><br>Under</h1>
+    </div>
+    <div class="land-corner">April 2027</div>
+    <div class="scroll-cue"><span>Scroll</span><div class="scroll-line"></div></div>
+  </section>
+
+  <!-- ══════════════════════════════
+       MELBOURNE
+  ══════════════════════════════ -->
+
+  <!-- 1. Melbourne Intro -->
+  <section class="slide intro-slide" id="melb-intro">
+    <p class="breadcrumb">Melbourne</p>
+    <span class="intro-ghost">M</span>
+    <div class="inner">
+      <p class="intro-loc">Stop One</p>
+      <h2 class="intro-name">Mel<em>bourne</em></h2>
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Dates</span>
+          <span class="intro-meta-val">April 4 – 8</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Nights</span>
+          <span class="intro-meta-val">4 nights</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Vibe</span>
+          <span class="intro-meta-val">Coffee, culture &amp; laneways</span>
+        </div>
+      </div>
+      <p class="intro-desc">Australia's cultural capital. Hidden laneways, world-class food, rooftop bars and an arts scene that never sleeps. The perfect way to kick off the trip.</p>
+    </div>
+    <span class="slide-num">01 / 09</span>
+  </section>
+
+  <!-- 2. Melbourne Things To Do -->
+  <section class="slide" id="melb-todo">
+    <p class="breadcrumb"><span>Melbourne</span> / Things To Do</p>
+
+    <!-- Left panel -->
+    <div class="mtd-left">
+      <p class="mtd-eyebrow">Melbourne</p>
+      <h2 class="mtd-heading">Things<br><em>To Do</em></h2>
+      <!-- Pill dot indicators -->
+      <div class="mtd-dots">
+        <button class="mtd-dot active" data-i="0"></button>
+        <button class="mtd-dot" data-i="1"></button>
+        <button class="mtd-dot" data-i="2"></button>
+        <button class="mtd-dot" data-i="3"></button>
+      </div>
+    </div>
+
+    <!-- Right carousel -->
+    <div class="mtd-right">
+      <div class="mtd-track" id="mtdTrack">
+
+        <!-- Card 1 -->
+        <div class="mtd-card active">
+          <div class="mtd-img">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="mtd-info">
+            <span class="mtd-num">01</span>
+            <h3 class="mtd-title">Mooch around Fitzroy</h3>
+            <p class="mtd-sub">Thrifting · matcha · design stores · architecture · food</p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="mtd-card">
+          <div class="mtd-img">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="mtd-info">
+            <span class="mtd-num">02</span>
+            <h3 class="mtd-title">Big night out</h3>
+            <p class="mtd-sub">Rooftop bars · underground raves · jazz cafes · pub crawls</p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="mtd-card">
+          <div class="mtd-img">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="mtd-info">
+            <span class="mtd-num">03</span>
+            <h3 class="mtd-title">St Kilda Beach</h3>
+            <p class="mtd-sub">Pub on the beach · swim · more shopping · mooch around</p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="mtd-card">
+          <div class="mtd-img">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </div>
+          <div class="mtd-info">
+            <span class="mtd-num">04</span>
+            <h3 class="mtd-title">See a Show</h3>
+            <p class="mtd-sub">Musicals · theatre · AFL · gigs</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <span class="slide-num">02 / 09</span>
+  </section>
+
+  <!-- 3. Melbourne Places To Stay -->
+  <section class="slide stay-slide" id="melb-stay">
+    <p class="breadcrumb"><span>Melbourne</span> / Where To Stay</p>
+    <div class="inner">
+      <div>
+        <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
+        <p class="stay-sub">Melbourne</p>
+      </div>
+      <div class="stay-cards">
+        <div class="stay-card">
+          <div class="stay-name">The Langham Melbourne</div>
+          <div class="stay-tags"><span class="stay-tag">Southbank</span><span class="stay-tag">5 Star</span><span class="stay-tag">Spa &amp; Pool</span></div>
+          <span class="stay-vibe">Luxury splurge</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">QT Melbourne</div>
+          <div class="stay-tags"><span class="stay-tag">CBD</span><span class="stay-tag">Boutique</span><span class="stay-tag">Design-forward</span></div>
+          <span class="stay-vibe">Trendy &amp; central</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">Art Series — The Olsen</div>
+          <div class="stay-tags"><span class="stay-tag">South Yarra</span><span class="stay-tag">Rooftop Pool</span><span class="stay-tag">Art-inspired</span></div>
+          <span class="stay-vibe">Creative &amp; cool</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">Airbnb in Fitzroy</div>
+          <div class="stay-tags"><span class="stay-tag">Local feel</span><span class="stay-tag">Best cafés</span><span class="stay-tag">Walkable</span></div>
+          <span class="stay-vibe">Home away from home</span>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num">03 / 09</span>
+  </section>
+
+  <!-- ══════════════════════════════
+       BYRON BAY
+  ══════════════════════════════ -->
+
+  <!-- 4. Byron Intro -->
+  <section class="slide intro-slide" id="byron-intro">
+    <p class="breadcrumb">Byron Bay</p>
+    <span class="intro-ghost">B</span>
+    <div class="inner">
+      <p class="intro-loc">Stop Two</p>
+      <h2 class="intro-name">By<em>ron</em><br>Bay</h2>
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Dates</span>
+          <span class="intro-meta-val">April 9 – 13</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Nights</span>
+          <span class="intro-meta-val">4 nights</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Vibe</span>
+          <span class="intro-meta-val">Surf, sunsets &amp; hinterland</span>
+        </div>
+      </div>
+      <p class="intro-desc">Laid-back coastal town with world-class surf, lush hinterland and a relaxed energy that makes it impossible to leave. Pure magic.</p>
+    </div>
+    <span class="slide-num">04 / 09</span>
+  </section>
+
+  <!-- 5. Byron Things To Do -->
+  <section class="slide todo-slide" id="byron-todo">
+    <p class="breadcrumb"><span>Byron Bay</span> / Things To Do</p>
+    <div class="inner">
+      <div>
+        <h2 class="todo-heading">Things<br><em>To Do</em></h2>
+        <p class="todo-sub">Byron Bay</p>
+      </div>
+      <ul class="todo-list">
+        <li><span class="todo-num">01</span><div><div class="todo-text">Cape Byron Lighthouse walk</div><div class="todo-detail">Sunrise hike to Australia's most easterly point</div></div></li>
+        <li><span class="todo-num">02</span><div><div class="todo-text">Surf lessons at Wategos Beach</div><div class="todo-detail">Beginner-friendly with epic scenery</div></div></li>
+        <li><span class="todo-num">03</span><div><div class="todo-text">Crystal Castle &amp; Shambhala Gardens</div><div class="todo-detail">Hinterland day trip — truly magical</div></div></li>
+        <li><span class="todo-num">04</span><div><div class="todo-text">Byron Bay Farmers Market</div><div class="todo-detail">Thursday mornings at the Byron Community Centre</div></div></li>
+        <li><span class="todo-num">05</span><div><div class="todo-text">Sunset at The Pass</div><div class="todo-detail">Golden hour with dolphins. Every. Time.</div></div></li>
+      </ul>
+    </div>
+    <span class="slide-num">05 / 09</span>
+  </section>
+
+  <!-- 6. Byron Places To Stay -->
+  <section class="slide stay-slide" id="byron-stay">
+    <p class="breadcrumb"><span>Byron Bay</span> / Where To Stay</p>
+    <div class="inner">
+      <div>
+        <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
+        <p class="stay-sub">Byron Bay</p>
+      </div>
+      <div class="stay-cards">
+        <div class="stay-card">
+          <div class="stay-name">Raes on Wategos</div>
+          <div class="stay-tags"><span class="stay-tag">Wategos Beach</span><span class="stay-tag">Boutique</span><span class="stay-tag">5 Star</span></div>
+          <span class="stay-vibe">The iconic Byron stay</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">The Atlantic Byron Bay</div>
+          <div class="stay-tags"><span class="stay-tag">Town centre</span><span class="stay-tag">Pool</span><span class="stay-tag">Adults-only</span></div>
+          <span class="stay-vibe">Chic &amp; walkable</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">Elements of Byron</div>
+          <div class="stay-tags"><span class="stay-tag">Beachfront</span><span class="stay-tag">Villas</span><span class="stay-tag">Spa</span></div>
+          <span class="stay-vibe">Secluded resort vibes</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">Suffolk Park holiday rental</div>
+          <div class="stay-tags"><span class="stay-tag">5 min from town</span><span class="stay-tag">Self-contained</span><span class="stay-tag">Local</span></div>
+          <span class="stay-vibe">Space to spread out</span>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num">06 / 09</span>
+  </section>
+
+  <!-- ══════════════════════════════
+       GOLD COAST
+  ══════════════════════════════ -->
+
+  <!-- 7. Gold Coast Intro -->
+  <section class="slide intro-slide" id="gc-intro">
+    <p class="breadcrumb">Gold Coast</p>
+    <span class="intro-ghost">G</span>
+    <div class="inner">
+      <p class="intro-loc">Stop Three</p>
+      <h2 class="intro-name">Gold<br><em>Coast</em></h2>
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Dates</span>
+          <span class="intro-meta-val">April 14 – 18</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Nights</span>
+          <span class="intro-meta-val">4 nights</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Vibe</span>
+          <span class="intro-meta-val">Sun, beaches &amp; good times</span>
+        </div>
+      </div>
+      <p class="intro-desc">The perfect finale. Golden beaches, endless sunshine and a buzzing restaurant and nightlife scene. Go out with a bang.</p>
+    </div>
+    <span class="slide-num">07 / 09</span>
+  </section>
+
+  <!-- 8. Gold Coast Things To Do -->
+  <section class="slide todo-slide" id="gc-todo">
+    <p class="breadcrumb"><span>Gold Coast</span> / Things To Do</p>
+    <div class="inner">
+      <div>
+        <h2 class="todo-heading">Things<br><em>To Do</em></h2>
+        <p class="todo-sub">Gold Coast</p>
+      </div>
+      <ul class="todo-list">
+        <li><span class="todo-num">01</span><div><div class="todo-text">Burleigh Heads beach &amp; hike</div><div class="todo-detail">Best beach on the coast — less touristy, more vibes</div></div></li>
+        <li><span class="todo-num">02</span><div><div class="todo-text">Currumbin Wildlife Sanctuary</div><div class="todo-detail">Hold a koala. Non-negotiable.</div></div></li>
+        <li><span class="todo-num">03</span><div><div class="todo-text">Broadbeach dining &amp; nightlife</div><div class="todo-detail">Restaurant strip, rooftops &amp; cocktails</div></div></li>
+        <li><span class="todo-num">04</span><div><div class="todo-text">Hinterland day trip</div><div class="todo-detail">Tamborine Mountain, O'Reilly's Rainforest</div></div></li>
+        <li><span class="todo-num">05</span><div><div class="todo-text">Surfers Paradise &amp; SkyPoint</div><div class="todo-detail">Observation deck views at golden hour</div></div></li>
+      </ul>
+    </div>
+    <span class="slide-num">08 / 09</span>
+  </section>
+
+  <!-- 9. Gold Coast Places To Stay -->
+  <section class="slide stay-slide" id="gc-stay">
+    <p class="breadcrumb"><span>Gold Coast</span> / Where To Stay</p>
+    <div class="inner">
+      <div>
+        <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
+        <p class="stay-sub">Gold Coast</p>
+      </div>
+      <div class="stay-cards">
+        <div class="stay-card">
+          <div class="stay-name">QT Gold Coast</div>
+          <div class="stay-tags"><span class="stay-tag">Surfers Paradise</span><span class="stay-tag">Boutique</span><span class="stay-tag">Pool &amp; Spa</span></div>
+          <span class="stay-vibe">Design-forward fun</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">Palazzo Versace</div>
+          <div class="stay-tags"><span class="stay-tag">Main Beach</span><span class="stay-tag">Iconic</span><span class="stay-tag">5 Star</span></div>
+          <span class="stay-vibe">Full glamour mode</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">Peppers Broadbeach</div>
+          <div class="stay-tags"><span class="stay-tag">Broadbeach</span><span class="stay-tag">Apartments</span><span class="stay-tag">Beachfront</span></div>
+          <span class="stay-vibe">Space &amp; location sorted</span>
+        </div>
+        <div class="stay-card">
+          <div class="stay-name">The Star Grand</div>
+          <div class="stay-tags"><span class="stay-tag">Broadbeach</span><span class="stay-tag">Luxury</span><span class="stay-tag">Entertainment precinct</span></div>
+          <span class="stay-vibe">All the amenities</span>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num">09 / 09</span>
+  </section>
+
+  <!-- ══════════════════════════════
+       OUTRO
+  ══════════════════════════════ -->
+  <section id="outro">
+    <p class="outro-tag">15 Days &nbsp;·&nbsp; 3 Cities &nbsp;·&nbsp; One Epic Trip</p>
+    <h2 class="outro-title">See you<br><em>Down Under</em></h2>
+    <p class="outro-date">April 4 – 18, 2027</p>
+  </section>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ─── CURSOR ─── */
+    const cur = document.getElementById('cur');
+    const curRing = document.getElementById('curRing');
+    document.addEventListener('mousemove', e => {
+      cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px';
+      gsap.to(curRing, { left: e.clientX, top: e.clientY, duration: .12, ease: 'power2.out' });
+    });
+
+    /* ─── PROGRESS ─── */
+    const pf = document.getElementById('progFill');
+    window.addEventListener('scroll', () => {
+      pf.style.transform = `scaleX(${window.scrollY / (document.body.scrollHeight - window.innerHeight)})`;
+    });
+
+    /* ─── DARK / WHITE BODY CLASS (for dot colours) ─── */
+    const darkSections = ['landing', 'outro'];
+    const allSections = ['landing','melb-intro','melb-todo','melb-stay','byron-intro','byron-todo','byron-stay','gc-intro','gc-todo','gc-stay','outro'];
+
+    allSections.forEach(id => {
+      ScrollTrigger.create({
+        trigger: `#${id}`, start: 'top 55%', end: 'bottom 55%',
+        onEnter:     () => setSection(id),
+        onEnterBack: () => setSection(id),
+      });
+    });
+
+    function setSection(id) {
+      const isDark = darkSections.includes(id);
+      document.body.classList.toggle('on-dark', isDark);
+      document.body.classList.toggle('on-white', !isDark);
+      // update dots
+      document.querySelectorAll('.sdot').forEach(d => {
+        d.classList.toggle('active', d.dataset.t === id);
+      });
+    }
+
+    /* ─── DOT CLICKS ─── */
+    document.querySelectorAll('.sdot').forEach(d =>
+      d.addEventListener('click', () =>
+        document.getElementById(d.dataset.t).scrollIntoView({ behavior: 'smooth' })
+      )
+    );
+
+    /* ─── LANDING INTRO ─── */
+    gsap.set(['.land-eyebrow','.land-title','.land-corner','.scroll-cue'], { opacity: 0 });
+    gsap.set('.land-title', { y: 50 });
+    gsap.timeline({ delay: .3 })
+      .to('.land-eyebrow', { opacity: 1, duration: 1.1, ease: 'power3.out' }, .2)
+      .to('.land-title',   { opacity: 1, y: 0, duration: 1.6, ease: 'power3.out' }, .4)
+      .to('.land-corner',  { opacity: 1, duration: 1, ease: 'power3.out' }, 1.0)
+      .to('.scroll-cue',   { opacity: 1, duration: 1, ease: 'power3.out' }, 1.15);
+
+    /* ─── SLIDE REVEALS ─── */
+    function revealSlide(sec) {
+      const type = sec.classList.contains('intro-slide') ? 'intro'
+                 : sec.classList.contains('todo-slide')  ? 'todo'
+                 : 'stay';
+
+      const bc = sec.querySelector('.breadcrumb');
+      if (bc) gsap.to(bc, { opacity: 1, y: 0, duration: .6, ease: 'power3.out' });
+
+      if (type === 'intro') {
+        const tl = gsap.timeline();
+        tl.to(sec.querySelector('.intro-loc'),  { opacity:1, y:0, duration:.6, ease:'power3.out' }, 0)
+          .to(sec.querySelector('.intro-name'), { opacity:1, y:0, duration:1.1, ease:'power3.out' }, .1)
+          .to(sec.querySelector('.intro-meta'), { opacity:1, y:0, duration:.7, ease:'power3.out' }, .3)
+          .to(sec.querySelector('.intro-desc'), { opacity:1, y:0, duration:.7, ease:'power3.out' }, .45);
+
+      } else if (type === 'todo') {
+        const tl = gsap.timeline();
+        tl.to(sec.querySelector('.todo-heading'), { opacity:1, y:0, duration:1, ease:'power3.out' }, 0)
+          .to(sec.querySelector('.todo-sub'),     { opacity:1, y:0, duration:.6, ease:'power3.out' }, .15)
+          .to(sec.querySelectorAll('.todo-list li'), {
+            opacity:1, x:0, duration:.55, ease:'power3.out', stagger: .08
+          }, .25);
+
+      } else {
+        const tl = gsap.timeline();
+        tl.to(sec.querySelector('.stay-heading'), { opacity:1, y:0, duration:1, ease:'power3.out' }, 0)
+          .to(sec.querySelector('.stay-sub'),     { opacity:1, y:0, duration:.6, ease:'power3.out' }, .15)
+          .to(sec.querySelectorAll('.stay-card'), {
+            opacity:1, x:0, duration:.55, ease:'power3.out', stagger: .1
+          }, .25);
+      }
+    }
+
+    document.querySelectorAll('.slide').forEach(sec => {
+      let done = false;
+      function run() { if (done) return; done = true; revealSlide(sec); }
+      new IntersectionObserver(e => { if (e[0].isIntersecting) { run(); } }, { threshold: .05 }).observe(sec);
+      ScrollTrigger.create({ trigger: sec, start: 'top 90%', onEnter: run });
+    });
+
+    /* ─── OUTRO ─── */
+    gsap.set('.outro-title', { y: 30 });
+    let outroDone = false;
+    function runOutro() {
+      if (outroDone) return; outroDone = true;
+      gsap.timeline()
+        .to('.outro-tag',   { opacity:1, duration:1, ease:'power3.out' }, 0)
+        .to('.outro-title', { opacity:1, y:0, duration:1.3, ease:'power3.out' }, .2)
+        .to('.outro-date',  { opacity:1, duration:1, ease:'power3.out' }, .5);
+    }
+    new IntersectionObserver(e => { if (e[0].isIntersecting) runOutro(); }, { threshold: .05 }).observe(document.getElementById('outro'));
+    ScrollTrigger.create({ trigger: '#outro', start: 'top 90%', onEnter: runOutro });
+    /* ─── MELBOURNE CAROUSEL ─── */
+    function initMelbCarousel() {
+      const track  = document.getElementById('mtdTrack');
+      const cards  = document.querySelectorAll('#melb-todo .mtd-card');
+      const dots   = document.querySelectorAll('#melb-todo .mtd-dot');
+      let current  = 0;
+      let timer;
+
+      function goTo(i) {
+        cards[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = i;
+        cards[current].classList.add('active');
+        dots[current].classList.add('active');
+        const cardH = cards[0].offsetHeight;
+        const gap   = 16; // 1rem
+        track.style.transform = `translateY(-${i * (cardH + gap)}px)`;
+      }
+
+      function next() { goTo((current + 1) % cards.length); }
+
+      function start() { timer = setInterval(next, 3800); }
+      function stop()  { clearInterval(timer); }
+
+      dots.forEach((d, i) => d.addEventListener('click', () => { stop(); goTo(i); start(); }));
+      cards.forEach((c, i) => c.addEventListener('click', () => { if (i !== current) { stop(); goTo(i); start(); } }));
+
+      // Start when section enters view
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) start(); else stop();
+      }, { threshold: .1 });
+      io.observe(document.getElementById('melb-todo'));
+    }
+
+    initMelbCarousel();
+
+  </script>
+</body>
+</html>
