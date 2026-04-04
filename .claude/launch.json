@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "girls-down-under",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-l", "3456", "/Users/naomiking/girls-down-under"],
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "3456", "--directory", "/Users/naomiking/girls-down-under"],
       "port": 3456
     }
   ]

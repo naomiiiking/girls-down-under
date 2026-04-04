@@ -249,6 +249,49 @@
     }
 
     /* ─────────────────────────────
+       VIDEO INTRO SLIDE
+    ───────────────────────────── */
+    .video-intro {
+      position: relative; overflow: hidden;
+    }
+    .video-intro video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+    }
+    .video-intro .vi-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,.45) 0%, rgba(0,0,0,.62) 100%);
+      z-index: 1;
+    }
+    .video-intro .vi-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: flex-start; justify-content: center;
+      height: 100%; padding: 0 3.5rem;
+    }
+    .vi-subtitle {
+      font-weight: 300; font-size: .65rem;
+      letter-spacing: .55em; text-transform: uppercase;
+      color: rgba(255,255,255,.6); margin-bottom: 1rem;
+      opacity: 0; transform: translateY(12px);
+    }
+    .vi-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(5rem, 12vw, 10.5rem); line-height: .88;
+      color: #fff; margin-bottom: 2rem;
+      opacity: 0; transform: translateY(35px);
+    }
+    .vi-title em { font-style: italic; }
+    .vi-stay {
+      font-weight: 200; font-size: .82rem;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: rgba(255,255,255,.75);
+      opacity: 0; transform: translateY(12px);
+    }
+    .vi-stay strong { font-weight: 400; }
+
+    /* ─────────────────────────────
        THINGS TO DO SLIDES
     ───────────────────────────── */
     .todo-slide .inner {
@@ -383,7 +426,7 @@
     ═══════════════════════════════════════ */
     :root { --green: #1ACC82; }
 
-    #melb-todo {
+    #melb-todo, #gc-todo {
       flex-direction: row;
       align-items: stretch;
       overflow: hidden;
@@ -448,11 +491,11 @@
     /* Card */
     .mtd-card {
       flex-shrink: 0;
-      height: 78vh;
+      height: 58vh;
       border-radius: 10px;
       overflow: hidden;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       background: var(--white);
       border: 1px solid #EBEBEB;
       cursor: pointer;
@@ -461,15 +504,20 @@
     .mtd-card:not(.active) { opacity: .38; }
     .mtd-card.active { border-color: var(--green); opacity: 1; }
 
-    /* Image placeholder */
+    /* Image — left column */
     .mtd-img {
-      flex: 1;
+      flex: 0 0 52%;
       background: #F0F0F0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: relative;
       overflow: hidden;
+    }
+    .mtd-img img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
     }
     /* Subtle diagonal lines pattern for placeholder */
     .mtd-img::before {
@@ -484,11 +532,14 @@
       );
     }
 
-    /* Card text area */
+    /* Card text area — right column */
     .mtd-info {
-      flex-shrink: 0;
-      padding: 1.5rem 2rem 1.75rem;
-      border-top: 1px solid #EBEBEB;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 2.25rem;
+      border-left: 1px solid #EBEBEB;
     }
     .mtd-num {
       font-family: 'Cormorant Garamond', serif; font-weight: 300;
@@ -515,7 +566,12 @@
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
     }
-    #melb-map::before { display: none; } /* hide the white top border */
+    #melb-map::before, #gc-map::before { display: none; }
+    #gc-map {
+      background: #0a0a0a;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
     #leaflet-map {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
@@ -552,9 +608,9 @@
       color: white;
     }
     .map-place em { font-style: italic; color: var(--orange); }
-    #melb-map .breadcrumb { color: rgba(255,255,255,.35); z-index: 10; }
-    #melb-map .breadcrumb span { color: var(--orange); }
-    #melb-map .slide-num { color: rgba(255,255,255,.25); z-index: 10; }
+    #melb-map .breadcrumb, #gc-map .breadcrumb { color: rgba(255,255,255,.35); z-index: 10; }
+    #melb-map .breadcrumb span, #gc-map .breadcrumb span { color: var(--orange); }
+    #melb-map .slide-num, #gc-map .slide-num { color: rgba(255,255,255,.25); z-index: 10; }
     /* Leaflet marker */
     .fm-wrap { position: relative; width: 24px; height: 24px; }
     .fm-dot {
@@ -637,6 +693,36 @@
     }
     .ab-price { font-weight: 400; font-size: .78rem; color: var(--black); }
     .ab-price sup { font-weight: 200; font-size: .58rem; color: var(--grey); }
+    /* Placeholder for cards without a photo yet */
+    .ab-img-ph {
+      width: 100%; aspect-ratio: 16/10;
+      background: #F0F0F0; display: block;
+      position: relative; overflow: hidden;
+    }
+    .ab-img-ph::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 14px,
+        rgba(0,0,0,.03) 14px, rgba(0,0,0,.03) 15px
+      );
+    }
+    .ab-img-ph::after {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 32px; height: 32px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.18)' stroke-width='1.2'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E") center/contain no-repeat;
+    }
+    /* GC map leaflet div */
+    #gc-leaflet-map {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 1; opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+    #gc-leaflet-map.loaded { opacity: 1; }
+
     .ab-hint {
       font-weight: 200; font-size: .58rem;
       letter-spacing: .08em; color: var(--grey); margin-top: .25rem;
@@ -678,11 +764,9 @@
     <button class="sdot" data-t="melb-todo"></button>
     <button class="sdot" data-t="melb-map"></button>
     <button class="sdot" data-t="melb-stay"></button>
-    <button class="sdot" data-t="byron-intro"></button>
-    <button class="sdot" data-t="byron-todo"></button>
-    <button class="sdot" data-t="byron-stay"></button>
     <button class="sdot" data-t="gc-intro"></button>
     <button class="sdot" data-t="gc-todo"></button>
+    <button class="sdot" data-t="gc-map"></button>
     <button class="sdot" data-t="gc-stay"></button>
     <button class="sdot" data-t="outro"></button>
   </nav>
@@ -708,31 +792,17 @@
   ══════════════════════════════ -->
 
   <!-- 1. Melbourne Intro -->
-  <section class="slide intro-slide" id="melb-intro">
-    <p class="breadcrumb">Melbourne</p>
-    <span class="intro-ghost">M</span>
-    <div class="inner">
-      <p class="intro-loc">Stop One</p>
-      <h2 class="intro-name">Mel<em>bourne</em></h2>
-      <div class="intro-meta">
-        <div class="intro-meta-item">
-          <span class="intro-meta-label">Dates</span>
-          <span class="intro-meta-val">April 4 – 8</span>
-        </div>
-        <div class="intro-meta-div"></div>
-        <div class="intro-meta-item">
-          <span class="intro-meta-label">Nights</span>
-          <span class="intro-meta-val">4 nights</span>
-        </div>
-        <div class="intro-meta-div"></div>
-        <div class="intro-meta-item">
-          <span class="intro-meta-label">Vibe</span>
-          <span class="intro-meta-val">Coffee, culture &amp; laneways</span>
-        </div>
-      </div>
-      <p class="intro-desc">Australia's cultural capital. Hidden laneways, world-class food, rooftop bars and an arts scene that never sleeps. The perfect way to kick off the trip.</p>
+  <section class="slide video-intro" id="melb-intro">
+    <video autoplay muted loop playsinline>
+      <source src="./melbourne/melbournelanding.mp4" type="video/mp4">
+    </video>
+    <div class="vi-overlay"></div>
+    <div class="vi-content">
+      <p class="vi-subtitle">Naarm</p>
+      <h2 class="vi-title">Mel<em>bourne</em></h2>
+      <p class="vi-stay"><strong>Stay:</strong> 4 nights</p>
     </div>
-    <span class="slide-num">01 / 10</span>
+    <span class="slide-num" style="color:rgba(255,255,255,.5);">01 / 08</span>
   </section>
 
   <!-- 2. Melbourne Things To Do -->
@@ -749,6 +819,11 @@
         <button class="mtd-dot" data-i="1"></button>
         <button class="mtd-dot" data-i="2"></button>
         <button class="mtd-dot" data-i="3"></button>
+        <button class="mtd-dot" data-i="4"></button>
+        <button class="mtd-dot" data-i="5"></button>
+        <button class="mtd-dot" data-i="6"></button>
+        <button class="mtd-dot" data-i="7"></button>
+        <button class="mtd-dot" data-i="8"></button>
       </div>
     </div>
 
@@ -756,11 +831,8 @@
     <div class="mtd-right">
       <div class="mtd-track" id="mtdTrack">
 
-        <!-- Card 1 -->
         <div class="mtd-card active">
-          <div class="mtd-img">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          </div>
+          <div class="mtd-img"><img src="./melbourne/moocharound.png" alt="Mooch around Fitzroy"></div>
           <div class="mtd-info">
             <span class="mtd-num">01</span>
             <h3 class="mtd-title">Mooch around Fitzroy</h3>
@@ -768,46 +840,82 @@
           </div>
         </div>
 
-        <!-- Card 2 -->
         <div class="mtd-card">
-          <div class="mtd-img">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          </div>
+          <div class="mtd-img"><img src="./melbourne/stkilda.png" alt="St Kilda Beach"></div>
           <div class="mtd-info">
             <span class="mtd-num">02</span>
-            <h3 class="mtd-title">Big night out</h3>
-            <p class="mtd-sub">Rooftop bars · underground raves · jazz cafes · pub crawls</p>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="mtd-card">
-          <div class="mtd-img">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          </div>
-          <div class="mtd-info">
-            <span class="mtd-num">03</span>
             <h3 class="mtd-title">St Kilda Beach</h3>
             <p class="mtd-sub">Pub on the beach · swim · more shopping · mooch around</p>
           </div>
         </div>
 
-        <!-- Card 4 -->
         <div class="mtd-card">
-          <div class="mtd-img">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <div class="mtd-img"><img src="./melbourne/thrifting.png" alt="Thrifting"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">03</span>
+            <h3 class="mtd-title">Thrifting</h3>
+            <p class="mtd-sub">Best thrifting in the world</p>
           </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./melbourne/barhopping.png" alt="Bar Hopping"></div>
           <div class="mtd-info">
             <span class="mtd-num">04</span>
+            <h3 class="mtd-title">Bar Hopping</h3>
+            <p class="mtd-sub">We will meet hot people</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./melbourne/queenvicmarkets.png" alt="Queen Vic Markets"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">05</span>
+            <h3 class="mtd-title">Queen Vic Markets</h3>
+            <p class="mtd-sub">Food + picky bits + clothes</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./melbourne/rave.png" alt="Rave"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">06</span>
+            <h3 class="mtd-title">Rave</h3>
+            <p class="mtd-sub">Underground or official, we MUST go</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./melbourne/seeashow.png" alt="See a Show"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">07</span>
             <h3 class="mtd-title">See a Show</h3>
-            <p class="mtd-sub">Musicals · theatre · AFL · gigs</p>
+            <p class="mtd-sub">AFL, NRL or a musical</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./melbourne/coffeetours.png" alt="Coffee Tours"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">08</span>
+            <h3 class="mtd-title">Coffee Tours</h3>
+            <p class="mtd-sub">Cafe culture is v serious here</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./melbourne/designershopping.png" alt="Designer Shopping"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">09</span>
+            <h3 class="mtd-title">Designer Shopping</h3>
+            <p class="mtd-sub">I took this photo!</p>
           </div>
         </div>
 
       </div>
     </div>
 
-    <span class="slide-num">02 / 10</span>
+    <span class="slide-num">02 / 08</span>
   </section>
 
   <!-- 3. Melbourne Map Transition -->
@@ -820,7 +928,7 @@
       <p class="map-eyebrow">We're staying in</p>
       <h2 class="map-place">Fitz<em>roy</em></h2>
     </div>
-    <span class="slide-num">03 / 10</span>
+    <span class="slide-num">03 / 08</span>
   </section>
 
   <!-- 4. Melbourne Where To Stay — Airbnb Grid -->
@@ -917,104 +1025,19 @@
 
       </div>
     </div>
-    <span class="slide-num">04 / 10</span>
-  </section>
-
-  <!-- ══════════════════════════════
-       BYRON BAY
-  ══════════════════════════════ -->
-
-  <!-- 4. Byron Intro -->
-  <section class="slide intro-slide" id="byron-intro">
-    <p class="breadcrumb">Byron Bay</p>
-    <span class="intro-ghost">B</span>
-    <div class="inner">
-      <p class="intro-loc">Stop Two</p>
-      <h2 class="intro-name">By<em>ron</em><br>Bay</h2>
-      <div class="intro-meta">
-        <div class="intro-meta-item">
-          <span class="intro-meta-label">Dates</span>
-          <span class="intro-meta-val">April 9 – 13</span>
-        </div>
-        <div class="intro-meta-div"></div>
-        <div class="intro-meta-item">
-          <span class="intro-meta-label">Nights</span>
-          <span class="intro-meta-val">4 nights</span>
-        </div>
-        <div class="intro-meta-div"></div>
-        <div class="intro-meta-item">
-          <span class="intro-meta-label">Vibe</span>
-          <span class="intro-meta-val">Surf, sunsets &amp; hinterland</span>
-        </div>
-      </div>
-      <p class="intro-desc">Laid-back coastal town with world-class surf, lush hinterland and a relaxed energy that makes it impossible to leave. Pure magic.</p>
-    </div>
-    <span class="slide-num">05 / 10</span>
-  </section>
-
-  <!-- 5. Byron Things To Do -->
-  <section class="slide todo-slide" id="byron-todo">
-    <p class="breadcrumb"><span>Byron Bay</span> / Things To Do</p>
-    <div class="inner">
-      <div>
-        <h2 class="todo-heading">Things<br><em>To Do</em></h2>
-        <p class="todo-sub">Byron Bay</p>
-      </div>
-      <ul class="todo-list">
-        <li><span class="todo-num">01</span><div><div class="todo-text">Cape Byron Lighthouse walk</div><div class="todo-detail">Sunrise hike to Australia's most easterly point</div></div></li>
-        <li><span class="todo-num">02</span><div><div class="todo-text">Surf lessons at Wategos Beach</div><div class="todo-detail">Beginner-friendly with epic scenery</div></div></li>
-        <li><span class="todo-num">03</span><div><div class="todo-text">Crystal Castle &amp; Shambhala Gardens</div><div class="todo-detail">Hinterland day trip — truly magical</div></div></li>
-        <li><span class="todo-num">04</span><div><div class="todo-text">Byron Bay Farmers Market</div><div class="todo-detail">Thursday mornings at the Byron Community Centre</div></div></li>
-        <li><span class="todo-num">05</span><div><div class="todo-text">Sunset at The Pass</div><div class="todo-detail">Golden hour with dolphins. Every. Time.</div></div></li>
-      </ul>
-    </div>
-    <span class="slide-num">06 / 10</span>
-  </section>
-
-  <!-- 6. Byron Places To Stay -->
-  <section class="slide stay-slide" id="byron-stay">
-    <p class="breadcrumb"><span>Byron Bay</span> / Where To Stay</p>
-    <div class="inner">
-      <div>
-        <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
-        <p class="stay-sub">Byron Bay</p>
-      </div>
-      <div class="stay-cards">
-        <div class="stay-card">
-          <div class="stay-name">Raes on Wategos</div>
-          <div class="stay-tags"><span class="stay-tag">Wategos Beach</span><span class="stay-tag">Boutique</span><span class="stay-tag">5 Star</span></div>
-          <span class="stay-vibe">The iconic Byron stay</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">The Atlantic Byron Bay</div>
-          <div class="stay-tags"><span class="stay-tag">Town centre</span><span class="stay-tag">Pool</span><span class="stay-tag">Adults-only</span></div>
-          <span class="stay-vibe">Chic &amp; walkable</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">Elements of Byron</div>
-          <div class="stay-tags"><span class="stay-tag">Beachfront</span><span class="stay-tag">Villas</span><span class="stay-tag">Spa</span></div>
-          <span class="stay-vibe">Secluded resort vibes</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">Suffolk Park holiday rental</div>
-          <div class="stay-tags"><span class="stay-tag">5 min from town</span><span class="stay-tag">Self-contained</span><span class="stay-tag">Local</span></div>
-          <span class="stay-vibe">Space to spread out</span>
-        </div>
-      </div>
-    </div>
-    <span class="slide-num">07 / 10</span>
+    <span class="slide-num">04 / 08</span>
   </section>
 
   <!-- ══════════════════════════════
        GOLD COAST
   ══════════════════════════════ -->
 
-  <!-- 7. Gold Coast Intro -->
+  <!-- 5. Gold Coast Intro -->
   <section class="slide intro-slide" id="gc-intro">
     <p class="breadcrumb">Gold Coast</p>
     <span class="intro-ghost">G</span>
     <div class="inner">
-      <p class="intro-loc">Stop Three</p>
+      <p class="intro-loc">Stop Two</p>
       <h2 class="intro-name">Gold<br><em>Coast</em></h2>
       <div class="intro-meta">
         <div class="intro-meta-item">
@@ -1034,67 +1057,294 @@
       </div>
       <p class="intro-desc">The perfect finale. Golden beaches, endless sunshine and a buzzing restaurant and nightlife scene. Go out with a bang.</p>
     </div>
-    <span class="slide-num">08 / 10</span>
+    <span class="slide-num">05 / 08</span>
   </section>
 
-  <!-- 8. Gold Coast Things To Do -->
-  <section class="slide todo-slide" id="gc-todo">
+  <!-- 6. Gold Coast Things To Do — carousel -->
+  <section class="slide" id="gc-todo">
     <p class="breadcrumb"><span>Gold Coast</span> / Things To Do</p>
-    <div class="inner">
-      <div>
-        <h2 class="todo-heading">Things<br><em>To Do</em></h2>
-        <p class="todo-sub">Gold Coast</p>
+
+    <div class="mtd-left">
+      <p class="mtd-eyebrow">Gold Coast</p>
+      <h2 class="mtd-heading">Things<br><em>To Do</em></h2>
+      <div class="mtd-dots">
+        <button class="mtd-dot active" data-i="0"></button>
+        <button class="mtd-dot" data-i="1"></button>
+        <button class="mtd-dot" data-i="2"></button>
+        <button class="mtd-dot" data-i="3"></button>
+        <button class="mtd-dot" data-i="4"></button>
+        <button class="mtd-dot" data-i="5"></button>
+        <button class="mtd-dot" data-i="6"></button>
+        <button class="mtd-dot" data-i="7"></button>
+        <button class="mtd-dot" data-i="8"></button>
+        <button class="mtd-dot" data-i="9"></button>
+        <button class="mtd-dot" data-i="10"></button>
+        <button class="mtd-dot" data-i="11"></button>
+        <button class="mtd-dot" data-i="12"></button>
+        <button class="mtd-dot" data-i="13"></button>
+        <button class="mtd-dot" data-i="14"></button>
       </div>
-      <ul class="todo-list">
-        <li><span class="todo-num">01</span><div><div class="todo-text">Burleigh Heads beach &amp; hike</div><div class="todo-detail">Best beach on the coast — less touristy, more vibes</div></div></li>
-        <li><span class="todo-num">02</span><div><div class="todo-text">Currumbin Wildlife Sanctuary</div><div class="todo-detail">Hold a koala. Non-negotiable.</div></div></li>
-        <li><span class="todo-num">03</span><div><div class="todo-text">Broadbeach dining &amp; nightlife</div><div class="todo-detail">Restaurant strip, rooftops &amp; cocktails</div></div></li>
-        <li><span class="todo-num">04</span><div><div class="todo-text">Hinterland day trip</div><div class="todo-detail">Tamborine Mountain, O'Reilly's Rainforest</div></div></li>
-        <li><span class="todo-num">05</span><div><div class="todo-text">Surfers Paradise &amp; SkyPoint</div><div class="todo-detail">Observation deck views at golden hour</div></div></li>
-      </ul>
     </div>
-    <span class="slide-num">09 / 10</span>
+
+    <div class="mtd-right">
+      <div class="mtd-track" id="gctTrack">
+
+        <div class="mtd-card active">
+          <div class="mtd-img"><img src="./goldcoast/beaches.png" alt="Beach Out"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">01</span>
+            <h3 class="mtd-title">Beach Out</h3>
+            <p class="mtd-sub">10+ fierce beaches — no sharks!</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/surflesson.png" alt="Surf Lessons"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">02</span>
+            <h3 class="mtd-title">Surf Lessons</h3>
+            <p class="mtd-sub">On the small waves</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/nimbin.png" alt="Day Trip to Nimbin"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">03</span>
+            <h3 class="mtd-title">Day Trip to Nimbin</h3>
+            <p class="mtd-sub">420 🌿</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/waterfalls.png" alt="Waterfalls &amp; Rock Pools"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">04</span>
+            <h3 class="mtd-title">Waterfalls &amp; Rock Pools</h3>
+            <p class="mtd-sub">Float around inland</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/nightout.png" alt="Night Out"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">05</span>
+            <h3 class="mtd-title">Night Out</h3>
+            <p class="mtd-sub">Cali Beach · Surfers Paradise · Burleigh Pav</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/ecosnorkel.png" alt="Eco Snorkel Tour"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">06</span>
+            <h3 class="mtd-title">Eco Snorkel Tour</h3>
+            <p class="mtd-sub">Swim with turtles and manta rays</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/jetski.png" alt="Jetski Tour"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">07</span>
+            <h3 class="mtd-title">Jetski Tour</h3>
+            <p class="mtd-sub">£25 each — absolute bargain</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/movieworld.png" alt="Movie World"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">08</span>
+            <h3 class="mtd-title">Movie World</h3>
+            <p class="mtd-sub">Or another theme park — obvs</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/solelement.png" alt="Sol Element"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">09</span>
+            <h3 class="mtd-title">Sol Element</h3>
+            <p class="mtd-sub">Remote Japanese bathhouse — make your own scrubs</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/goboat.jpg" alt="Private GoBoat"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">10</span>
+            <h3 class="mtd-title">Private GoBoat</h3>
+            <p class="mtd-sub">Book our own boat and cruise the canals</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/zoo.png" alt="Shopping"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">11</span>
+            <h3 class="mtd-title">Shopping</h3>
+            <p class="mtd-sub">Pac Fair · DFO · Carrara Markets · vintage markets</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/tangalooma.png" alt="Tangalooma Day Trip"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">12</span>
+            <h3 class="mtd-title">Tangalooma Day Trip</h3>
+            <p class="mtd-sub">They filmed Scooby Doo Spooky Island here 👻</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/tropicalfruitworld.png" alt="Tropical Fruit World"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">13</span>
+            <h3 class="mtd-title">Tropical Fruit World</h3>
+            <p class="mtd-sub">220-acre exotic fruit farm · pet animals · boat tour</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/helicopter.jpg" alt="Helicopter Tour"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">14</span>
+            <h3 class="mtd-title">Helicopter Tour</h3>
+            <p class="mtd-sub">Pretty affordable split between us all</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./goldcoast/quadbike.jpg" alt="Quadbike or Horseback"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">15</span>
+            <h3 class="mtd-title">Quadbike or Horseback</h3>
+            <p class="mtd-sub">Rainforest tour — your pick</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <span class="slide-num">06 / 08</span>
   </section>
 
-  <!-- 9. Gold Coast Places To Stay -->
-  <section class="slide stay-slide" id="gc-stay">
+  <!-- 7. Gold Coast Map Transition -->
+  <section class="slide map-slide" id="gc-map">
     <p class="breadcrumb"><span>Gold Coast</span> / Where To Stay</p>
-    <div class="inner">
-      <div>
-        <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
-        <p class="stay-sub">Gold Coast</p>
-      </div>
-      <div class="stay-cards">
-        <div class="stay-card">
-          <div class="stay-name">QT Gold Coast</div>
-          <div class="stay-tags"><span class="stay-tag">Surfers Paradise</span><span class="stay-tag">Boutique</span><span class="stay-tag">Pool &amp; Spa</span></div>
-          <span class="stay-vibe">Design-forward fun</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">Palazzo Versace</div>
-          <div class="stay-tags"><span class="stay-tag">Main Beach</span><span class="stay-tag">Iconic</span><span class="stay-tag">5 Star</span></div>
-          <span class="stay-vibe">Full glamour mode</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">Peppers Broadbeach</div>
-          <div class="stay-tags"><span class="stay-tag">Broadbeach</span><span class="stay-tag">Apartments</span><span class="stay-tag">Beachfront</span></div>
-          <span class="stay-vibe">Space &amp; location sorted</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">The Star Grand</div>
-          <div class="stay-tags"><span class="stay-tag">Broadbeach</span><span class="stay-tag">Luxury</span><span class="stay-tag">Entertainment precinct</span></div>
-          <span class="stay-vibe">All the amenities</span>
-        </div>
+    <div id="gc-leaflet-map"></div>
+    <div class="map-vignette"></div>
+    <div class="map-bottom-fade"></div>
+    <div class="map-label" id="gcMapLabel">
+      <p class="map-eyebrow">We're staying in</p>
+      <h2 class="map-place">Bur<em>leigh</em><br>Heads</h2>
+    </div>
+    <span class="slide-num">07 / 08</span>
+  </section>
+
+  <!-- 8. Gold Coast Where To Stay — Airbnb Grid -->
+  <section class="slide airbnb-slide" id="gc-stay">
+    <p class="breadcrumb"><span>Gold Coast</span> / Where To Stay</p>
+    <div class="ab-left">
+      <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
+      <p class="stay-sub">Burleigh Heads</p>
+      <div class="ab-note">
+        <p>6 options · sorted by size</p>
+        <span>All steps from Burleigh Beach — one of the Gold Coast's most beloved spots.</span>
       </div>
     </div>
-    <span class="slide-num">10 / 10</span>
+    <div class="ab-right">
+      <div class="ab-grid">
+
+        <!-- 1 · Dreamy Peach Apartment — 2BD ocean views + pool -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1599648918803371078" target="_blank">
+          <img class="ab-img" src="./images/gc-bush-khove.avif" alt="Dreamy Burleigh Girls' Getaway">
+          <div class="ab-info">
+            <p class="ab-title">Dreamy Burleigh Girls' Getaway</p>
+            <div class="ab-meta">
+              <span class="ab-beds">2 beds · 1 bath · pool</span>
+              <p class="ab-price">£171<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Burleigh Heads · Superhost</p>
+          </div>
+        </a>
+
+        <!-- 2 · Modern Retreat — 2BD pool + sauna -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1633877524829112379" target="_blank">
+          <img class="ab-img" src="./images/gc-nova-khove.png" alt="Modern Coastal Retreat">
+          <div class="ab-info">
+            <p class="ab-title">Modern Coastal Retreat</p>
+            <div class="ab-meta">
+              <span class="ab-beds">2 beds · 2 baths · sauna</span>
+              <p class="ab-price">£200<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Burleigh Heads · Superhost</p>
+          </div>
+        </a>
+
+        <!-- 3 · Hali'a Beach Cottage — 3BD top 1% -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1270611843077703559" target="_blank">
+          <img class="ab-img" src="./images/gc-halia.avif" alt="Hali'a — Vintage Beach Cottage">
+          <div class="ab-info">
+            <p class="ab-title">Hali'a — Vintage Beach Cottage</p>
+            <div class="ab-meta">
+              <span class="ab-beds">3 beds · 1.5 baths · BBQ</span>
+              <p class="ab-price">£240<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Burleigh Heads · 350m to beach</p>
+          </div>
+        </a>
+
+        <!-- 4 · Kaimana Bungalow — 3BD retro top 5% -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1517137883779157417" target="_blank">
+          <img class="ab-img" src="./images/gc-kaimana.avif" alt="Kaimana — Retro Beach Bungalow">
+          <div class="ab-info">
+            <p class="ab-title">Kaimana — Retro Beach Bungalow</p>
+            <div class="ab-meta">
+              <span class="ab-beds">3 beds · 1.5 baths · BBQ</span>
+              <p class="ab-price">£282<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Burleigh Heads · 350m to beach</p>
+          </div>
+        </a>
+
+        <!-- 5 · Rooftop Apartment — 3BD 3BA 365° views -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1328766703572848756" target="_blank">
+          <img class="ab-img" src="./images/gc-rooftop.avif" alt="Rooftop Views Apartment">
+          <div class="ab-info">
+            <p class="ab-title">Rooftop Views Apartment</p>
+            <div class="ab-meta">
+              <span class="ab-beds">3 beds · 3 baths</span>
+              <p class="ab-price">£299<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Burleigh Heads · 150m to beach</p>
+          </div>
+        </a>
+
+        <!-- 6 · Laneway Villas — 4BD luxury beach views -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1102469814852000739" target="_blank">
+          <img class="ab-img" src="./images/gc-laneway.avif" alt="Laneway Villas — 4BD Beach Views">
+          <div class="ab-info">
+            <p class="ab-title">Laneway Villas — 4BD Beach Views</p>
+            <div class="ab-meta">
+              <span class="ab-beds">4 beds · 2 baths</span>
+              <p class="ab-price">£339<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Burleigh Heads · Luxury</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+    <span class="slide-num">08 / 08</span>
   </section>
 
   <!-- ══════════════════════════════
        OUTRO
   ══════════════════════════════ -->
   <section id="outro">
-    <p class="outro-tag">15 Days &nbsp;·&nbsp; 3 Cities &nbsp;·&nbsp; One Epic Trip</p>
+    <p class="outro-tag">2 Destinations &nbsp;·&nbsp; 10 Days &nbsp;·&nbsp; One Epic Trip</p>
     <h2 class="outro-title">See you<br><em>Down Under</em></h2>
     <p class="outro-date">April 4 – 18, 2027</p>
   </section>
@@ -1117,8 +1367,8 @@
     });
 
     /* ─── DARK / WHITE BODY CLASS (for dot colours) ─── */
-    const darkSections = ['landing', 'melb-map', 'outro'];
-    const allSections = ['landing','melb-intro','melb-todo','melb-map','melb-stay','byron-intro','byron-todo','byron-stay','gc-intro','gc-todo','gc-stay','outro'];
+    const darkSections = ['landing', 'melb-intro', 'melb-map', 'gc-map', 'outro'];
+    const allSections = ['landing','melb-intro','melb-todo','melb-map','melb-stay','gc-intro','gc-todo','gc-map','gc-stay','outro'];
 
     allSections.forEach(id => {
       ScrollTrigger.create({
@@ -1156,7 +1406,8 @@
 
     /* ─── SLIDE REVEALS ─── */
     function revealSlide(sec) {
-      const type = sec.classList.contains('intro-slide')   ? 'intro'
+      const type = sec.classList.contains('video-intro')   ? 'video-intro'
+                 : sec.classList.contains('intro-slide')   ? 'intro'
                  : sec.classList.contains('todo-slide')    ? 'todo'
                  : sec.classList.contains('map-slide')     ? 'map'
                  : sec.classList.contains('airbnb-slide')  ? 'airbnb'
@@ -1165,7 +1416,13 @@
       const bc = sec.querySelector('.breadcrumb');
       if (bc) gsap.to(bc, { opacity: 1, y: 0, duration: .6, ease: 'power3.out' });
 
-      if (type === 'intro') {
+      if (type === 'video-intro') {
+        const tl = gsap.timeline();
+        tl.to(sec.querySelector('.vi-subtitle'), { opacity:1, y:0, duration:.6, ease:'power3.out' }, 0)
+          .to(sec.querySelector('.vi-title'),    { opacity:1, y:0, duration:1.1, ease:'power3.out' }, .1)
+          .to(sec.querySelector('.vi-stay'),     { opacity:1, y:0, duration:.7, ease:'power3.out' }, .4);
+
+      } else if (type === 'intro') {
         const tl = gsap.timeline();
         tl.to(sec.querySelector('.intro-loc'),  { opacity:1, y:0, duration:.6, ease:'power3.out' }, 0)
           .to(sec.querySelector('.intro-name'), { opacity:1, y:0, duration:1.1, ease:'power3.out' }, .1)
@@ -1181,7 +1438,8 @@
           }, .25);
 
       } else if (type === 'map') {
-        initFitzroyMap();
+        if (sec.id === 'melb-map') initFitzroyMap();
+        else if (sec.id === 'gc-map') initBurleighMap();
 
       } else if (type === 'airbnb') {
         const tl = gsap.timeline();
@@ -1246,27 +1504,38 @@
         { maxZoom: 19 }
       ).addTo(map);
 
-      // Start over Victoria at zoom 8 then fly in to Fitzroy
-      map.setView([-37.9, 144.9], 8);
+      // Start over Victoria at zoom 7 then fly in to Fitzroy
+      map.setView([-37.9, 144.9], 7);
 
       // Fade map in once first tiles load
       map.once('load', () => mapEl.classList.add('loaded'));
       setTimeout(() => mapEl.classList.add('loaded'), 1200); // fallback
 
-      // Fly to Fitzroy after a short delay
+      // Fly to Fitzroy — slow, cinematic zoom to zoom 14 so whole neighbourhood is visible
       setTimeout(() => {
-        map.flyTo([-37.7963, 144.9770], 16, {
-          animate: true, duration: 3.8, easeLinearity: 0.2
+        map.flyTo([-37.7963, 144.9770], 14, {
+          animate: true, duration: 6.5, easeLinearity: 0.15
         });
-      }, 600);
+      }, 700);
 
-      // Show label during fly
+      // Show label mid-flight
       setTimeout(() => {
         label.classList.add('visible');
-      }, 1800);
+      }, 3500);
 
-      // Drop a pulsing marker when we arrive
+      // Add Fitzroy neighbourhood highlight + dot when we arrive
       setTimeout(() => {
+        // Semi-transparent green polygon roughly covering Fitzroy
+        L.circle([-37.7963, 144.9770], {
+          radius: 620,
+          color: '#1ACC82',
+          weight: 2,
+          opacity: 0.8,
+          fillColor: '#1ACC82',
+          fillOpacity: 0.15,
+        }).addTo(map);
+
+        // Centre dot marker
         const icon = L.divIcon({
           className: '',
           html: '<div class="fm-wrap"><div class="fm-dot"></div><div class="fm-ring"></div></div>',
@@ -1274,7 +1543,55 @@
           iconAnchor: [12, 12]
         });
         L.marker([-37.7963, 144.9770], { icon }).addTo(map);
-      }, 4600);
+      }, 7400);
+    }
+
+    /* ─── BURLEIGH HEADS MAP ─── */
+    let _gcMapDone = false;
+    function initBurleighMap() {
+      if (_gcMapDone) return;
+      _gcMapDone = true;
+
+      const mapEl = document.getElementById('gc-leaflet-map');
+      const label = document.getElementById('gcMapLabel');
+
+      const map = L.map('gc-leaflet-map', {
+        zoomControl: false, attributionControl: false,
+        dragging: false, touchZoom: false, scrollWheelZoom: false,
+        doubleClickZoom: false, boxZoom: false, keyboard: false,
+      });
+
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 19 }
+      ).addTo(map);
+
+      map.setView([-27.5, 153.0], 7);
+
+      map.once('load', () => mapEl.classList.add('loaded'));
+      setTimeout(() => mapEl.classList.add('loaded'), 1200);
+
+      setTimeout(() => {
+        map.flyTo([-28.0852, 153.4499], 14, {
+          animate: true, duration: 6.5, easeLinearity: 0.15
+        });
+      }, 700);
+
+      setTimeout(() => { label.classList.add('visible'); }, 3500);
+
+      setTimeout(() => {
+        L.circle([-28.0852, 153.4499], {
+          radius: 550, color: '#1ACC82', weight: 2,
+          opacity: 0.8, fillColor: '#1ACC82', fillOpacity: 0.15,
+        }).addTo(map);
+
+        const icon = L.divIcon({
+          className: '',
+          html: '<div class="fm-wrap"><div class="fm-dot"></div><div class="fm-ring"></div></div>',
+          iconSize: [24, 24], iconAnchor: [12, 12]
+        });
+        L.marker([-28.0852, 153.4499], { icon }).addTo(map);
+      }, 7400);
     }
 
     /* ─── MELBOURNE CAROUSEL ─── */
@@ -1312,6 +1629,35 @@
     }
 
     initMelbCarousel();
+
+    /* ─── GOLD COAST CAROUSEL ─── */
+    function initGCCarousel() {
+      const track = document.getElementById('gctTrack');
+      const cards = document.querySelectorAll('#gc-todo .mtd-card');
+      const dots  = document.querySelectorAll('#gc-todo .mtd-dot');
+      let current = 0, timer;
+
+      function goTo(i) {
+        cards[current].classList.remove('active'); dots[current].classList.remove('active');
+        current = i;
+        cards[current].classList.add('active'); dots[current].classList.add('active');
+        const cardH = cards[0].offsetHeight;
+        track.style.transform = `translateY(-${i * (cardH + 16)}px)`;
+      }
+      function next() { goTo((current + 1) % cards.length); }
+      function start() { timer = setInterval(next, 3800); }
+      function stop()  { clearInterval(timer); }
+
+      dots.forEach((d, i) => d.addEventListener('click', () => { stop(); goTo(i); start(); }));
+      cards.forEach((c, i) => c.addEventListener('click', () => { if (i !== current) { stop(); goTo(i); start(); } }));
+
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) start(); else stop();
+      }, { threshold: .1 });
+      io.observe(document.getElementById('gc-todo'));
+    }
+
+    initGCCarousel();
 
   </script>
 </body>
