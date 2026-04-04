@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,7 +21,7 @@
       --white:  #FFFFFF;
       --grey:   #888888;
       --light:  #F2F2F2;
-      --orange: #F94500;
+      --orange: #1ACC82;
     }
 
     html { scroll-behavior: smooth; }
@@ -316,11 +318,12 @@
       display: flex; flex-direction: column; gap: 0;
     }
     .stay-card {
-      padding: 1.1rem 0;
-      border-bottom: 1px solid #EBEBEB;
+      padding: 1.1rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #EBEBEB;
+      margin-bottom: .6rem;
       opacity: 0; transform: translateX(16px);
     }
-    .stay-card:first-child { border-top: 1px solid #EBEBEB; }
     .stay-name {
       font-weight: 400; font-size: .9rem;
       letter-spacing: .03em; color: var(--black);
@@ -504,6 +507,155 @@
       line-height: 1.65;
     }
 
+    /* ═══════════════════════════════════════
+       MAP TRANSITION SLIDE  (#melb-map)
+    ═══════════════════════════════════════ */
+    #melb-map {
+      background: #0a0a0a;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #melb-map::before { display: none; } /* hide the white top border */
+    #leaflet-map {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 1; opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+    #leaflet-map.loaded { opacity: 1; }
+    /* vignette overlay */
+    #melb-map .map-vignette {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(10,10,10,.65) 100%);
+    }
+    /* bottom gradient for label readability */
+    #melb-map .map-bottom-fade {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
+      background: linear-gradient(to top, rgba(10,10,10,.85), transparent);
+      z-index: 3; pointer-events: none;
+    }
+    .map-label {
+      position: absolute; bottom: 5rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 10; text-align: center;
+      opacity: 0; transition: opacity 1.2s ease 2.5s;
+    }
+    .map-label.visible { opacity: 1; }
+    .map-eyebrow {
+      font-weight: 200; font-size: .62rem;
+      letter-spacing: .55em; text-transform: uppercase;
+      color: rgba(255,255,255,.55); margin-bottom: .55rem;
+    }
+    .map-place {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1;
+      color: white;
+    }
+    .map-place em { font-style: italic; color: var(--orange); }
+    #melb-map .breadcrumb { color: rgba(255,255,255,.35); z-index: 10; }
+    #melb-map .breadcrumb span { color: var(--orange); }
+    #melb-map .slide-num { color: rgba(255,255,255,.25); z-index: 10; }
+    /* Leaflet marker */
+    .fm-wrap { position: relative; width: 24px; height: 24px; }
+    .fm-dot {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--orange); border: 2px solid white;
+      box-shadow: 0 2px 10px rgba(0,0,0,.5); z-index: 2;
+    }
+    .fm-ring {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--orange); opacity: 0;
+      animation: mapPulse 2.2s ease-out infinite 0.5s;
+    }
+    @keyframes mapPulse {
+      0%   { transform: translate(-50%,-50%) scale(.2); opacity: .9; }
+      100% { transform: translate(-50%,-50%) scale(2.2); opacity: 0; }
+    }
+
+    /* ═══════════════════════════════════════
+       AIRBNB GRID SLIDE  (#melb-stay reworked)
+    ═══════════════════════════════════════ */
+    .airbnb-slide {
+      flex-direction: row !important;
+      overflow: hidden;
+    }
+    .ab-left {
+      width: 28%; min-width: 240px;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 5rem 3.5rem;
+      border-right: 1px solid #EBEBEB;
+      flex-shrink: 0;
+    }
+    .ab-right {
+      flex: 1; overflow: hidden;
+      padding: 2.5rem 2.5rem 2.5rem 2rem;
+      display: flex; align-items: center;
+    }
+    .ab-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .85rem;
+      width: 100%;
+    }
+    .ab-card {
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid #EBEBEB;
+      cursor: pointer; text-decoration: none;
+      display: flex; flex-direction: column;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+      opacity: 0; transform: translateY(18px);
+      background: white;
+    }
+    .ab-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 40px rgba(0,0,0,.09);
+      border-color: var(--orange);
+    }
+    .ab-img {
+      width: 100%; aspect-ratio: 16/10;
+      object-fit: cover; display: block;
+      background: #f0f0f0;
+    }
+    .ab-info { padding: .75rem 1rem .9rem; flex: 1; }
+    .ab-title {
+      font-weight: 400; font-size: .73rem; line-height: 1.4;
+      color: var(--black); letter-spacing: .01em;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ab-meta {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-top: .45rem;
+    }
+    .ab-beds {
+      font-weight: 200; font-size: .6rem;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--grey);
+    }
+    .ab-price { font-weight: 400; font-size: .78rem; color: var(--black); }
+    .ab-price sup { font-weight: 200; font-size: .58rem; color: var(--grey); }
+    .ab-hint {
+      font-weight: 200; font-size: .58rem;
+      letter-spacing: .08em; color: var(--grey); margin-top: .25rem;
+    }
+    .ab-note {
+      margin-top: 1.5rem; padding-top: 1.5rem;
+      border-top: 1px solid #EBEBEB;
+    }
+    .ab-note p {
+      font-size: .65rem; font-weight: 200;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--grey); margin-bottom: .35rem;
+    }
+    .ab-note span {
+      font-size: .78rem; font-weight: 300;
+      color: var(--black); line-height: 1.65;
+      letter-spacing: 0;
+    }
+
     /* ─── GRAIN ─── */
     body::after {
       content: ''; position: fixed; inset: 0;
@@ -524,6 +676,7 @@
     <button class="sdot active" data-t="landing"></button>
     <button class="sdot" data-t="melb-intro"></button>
     <button class="sdot" data-t="melb-todo"></button>
+    <button class="sdot" data-t="melb-map"></button>
     <button class="sdot" data-t="melb-stay"></button>
     <button class="sdot" data-t="byron-intro"></button>
     <button class="sdot" data-t="byron-todo"></button>
@@ -579,7 +732,7 @@
       </div>
       <p class="intro-desc">Australia's cultural capital. Hidden laneways, world-class food, rooftop bars and an arts scene that never sleeps. The perfect way to kick off the trip.</p>
     </div>
-    <span class="slide-num">01 / 09</span>
+    <span class="slide-num">01 / 10</span>
   </section>
 
   <!-- 2. Melbourne Things To Do -->
@@ -654,41 +807,117 @@
       </div>
     </div>
 
-    <span class="slide-num">02 / 09</span>
+    <span class="slide-num">02 / 10</span>
   </section>
 
-  <!-- 3. Melbourne Places To Stay -->
-  <section class="slide stay-slide" id="melb-stay">
+  <!-- 3. Melbourne Map Transition -->
+  <section class="slide map-slide" id="melb-map">
     <p class="breadcrumb"><span>Melbourne</span> / Where To Stay</p>
-    <div class="inner">
-      <div>
-        <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
-        <p class="stay-sub">Melbourne</p>
-      </div>
-      <div class="stay-cards">
-        <div class="stay-card">
-          <div class="stay-name">The Langham Melbourne</div>
-          <div class="stay-tags"><span class="stay-tag">Southbank</span><span class="stay-tag">5 Star</span><span class="stay-tag">Spa &amp; Pool</span></div>
-          <span class="stay-vibe">Luxury splurge</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">QT Melbourne</div>
-          <div class="stay-tags"><span class="stay-tag">CBD</span><span class="stay-tag">Boutique</span><span class="stay-tag">Design-forward</span></div>
-          <span class="stay-vibe">Trendy &amp; central</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">Art Series — The Olsen</div>
-          <div class="stay-tags"><span class="stay-tag">South Yarra</span><span class="stay-tag">Rooftop Pool</span><span class="stay-tag">Art-inspired</span></div>
-          <span class="stay-vibe">Creative &amp; cool</span>
-        </div>
-        <div class="stay-card">
-          <div class="stay-name">Airbnb in Fitzroy</div>
-          <div class="stay-tags"><span class="stay-tag">Local feel</span><span class="stay-tag">Best cafés</span><span class="stay-tag">Walkable</span></div>
-          <span class="stay-vibe">Home away from home</span>
-        </div>
+    <div id="leaflet-map"></div>
+    <div class="map-vignette"></div>
+    <div class="map-bottom-fade"></div>
+    <div class="map-label" id="mapLabel">
+      <p class="map-eyebrow">We're staying in</p>
+      <h2 class="map-place">Fitz<em>roy</em></h2>
+    </div>
+    <span class="slide-num">03 / 10</span>
+  </section>
+
+  <!-- 4. Melbourne Where To Stay — Airbnb Grid -->
+  <section class="slide airbnb-slide" id="melb-stay">
+    <p class="breadcrumb"><span>Melbourne</span> / Where To Stay</p>
+    <div class="ab-left">
+      <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
+      <p class="stay-sub">Fitzroy &amp; Collingwood</p>
+      <div class="ab-note">
+        <p>6 options · sorted by price</p>
+        <span>All within walking distance of each other in Melbourne's hippest neighbourhood.</span>
       </div>
     </div>
-    <span class="slide-num">03 / 09</span>
+    <div class="ab-right">
+      <div class="ab-grid">
+
+        <!-- 1 · Smith Street Sanctuary — £117/night -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/15656278616114495176" target="_blank">
+          <img class="ab-img" src="./images/smith-sanctuary.avif" alt="Smith Street Sanctuary">
+          <div class="ab-info">
+            <p class="ab-title">Smith Street Sanctuary | Free Parking &amp; Wifi</p>
+            <div class="ab-meta">
+              <span class="ab-beds">4 beds · 1 bath</span>
+              <p class="ab-price">£117<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Collingwood · 5★</p>
+          </div>
+        </a>
+
+        <!-- 2 · Comfort and Space — £144/night -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1293359007036750862" target="_blank">
+          <img class="ab-img" src="./images/comfort-space.avif" alt="Comfort and Space">
+          <div class="ab-info">
+            <p class="ab-title">Comfort and Space, XLarge, 3 Bed, Central Location</p>
+            <div class="ab-meta">
+              <span class="ab-beds">3 beds · 2 baths</span>
+              <p class="ab-price">£144<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Collingwood · 4.78★</p>
+          </div>
+        </a>
+
+        <!-- 3 · The Heart of Fitzroy — £163/night -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/18586937" target="_blank">
+          <img class="ab-img" src="./images/heart-fitzroy.avif" alt="Heart of Fitzroy">
+          <div class="ab-info">
+            <p class="ab-title">The Heart of Fitzroy "Smith Street"</p>
+            <div class="ab-meta">
+              <span class="ab-beds">4 beds · 1 bath</span>
+              <p class="ab-price">£163<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Fitzroy</p>
+          </div>
+        </a>
+
+        <!-- 4 · Collingwood Warehouse Apt — £165/night -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/256186" target="_blank">
+          <img class="ab-img" src="./images/collingwood-warehouse.avif" alt="Collingwood Warehouse Apt">
+          <div class="ab-info">
+            <p class="ab-title">Collingwood 2 bedrm Warehouse Apt</p>
+            <div class="ab-meta">
+              <span class="ab-beds">5 beds · 1 bath</span>
+              <p class="ab-price">£165<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Collingwood · 4.75★</p>
+          </div>
+        </a>
+
+        <!-- 5 · Warehouse Conversion Loft — £190/night -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1270793724214785333" target="_blank">
+          <img class="ab-img" src="./images/warehouse-loft.avif" alt="Warehouse Conversion Loft">
+          <div class="ab-info">
+            <p class="ab-title">Warehouse Conversion Loft | Near Smith St &amp; CBD</p>
+            <div class="ab-meta">
+              <span class="ab-beds">7 beds · 1 bath</span>
+              <p class="ab-price">£190<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Collingwood</p>
+          </div>
+        </a>
+
+        <!-- 6 · Stunning Executive Home — £193/night -->
+        <a class="ab-card" href="https://www.airbnb.com/rooms/1476443840825820717" target="_blank">
+          <img class="ab-img" src="./images/stunning-executive.avif" alt="Stunning Executive Home">
+          <div class="ab-info">
+            <p class="ab-title">Stunning 3BD Executive Home in Ultra-hip Fitzroy!</p>
+            <div class="ab-meta">
+              <span class="ab-beds">3 beds · 2 baths</span>
+              <p class="ab-price">£193<sup>/night</sup></p>
+            </div>
+            <p class="ab-hint">Fitzroy</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+    <span class="slide-num">04 / 10</span>
   </section>
 
   <!-- ══════════════════════════════
@@ -720,7 +949,7 @@
       </div>
       <p class="intro-desc">Laid-back coastal town with world-class surf, lush hinterland and a relaxed energy that makes it impossible to leave. Pure magic.</p>
     </div>
-    <span class="slide-num">04 / 09</span>
+    <span class="slide-num">05 / 10</span>
   </section>
 
   <!-- 5. Byron Things To Do -->
@@ -739,7 +968,7 @@
         <li><span class="todo-num">05</span><div><div class="todo-text">Sunset at The Pass</div><div class="todo-detail">Golden hour with dolphins. Every. Time.</div></div></li>
       </ul>
     </div>
-    <span class="slide-num">05 / 09</span>
+    <span class="slide-num">06 / 10</span>
   </section>
 
   <!-- 6. Byron Places To Stay -->
@@ -773,7 +1002,7 @@
         </div>
       </div>
     </div>
-    <span class="slide-num">06 / 09</span>
+    <span class="slide-num">07 / 10</span>
   </section>
 
   <!-- ══════════════════════════════
@@ -805,7 +1034,7 @@
       </div>
       <p class="intro-desc">The perfect finale. Golden beaches, endless sunshine and a buzzing restaurant and nightlife scene. Go out with a bang.</p>
     </div>
-    <span class="slide-num">07 / 09</span>
+    <span class="slide-num">08 / 10</span>
   </section>
 
   <!-- 8. Gold Coast Things To Do -->
@@ -824,7 +1053,7 @@
         <li><span class="todo-num">05</span><div><div class="todo-text">Surfers Paradise &amp; SkyPoint</div><div class="todo-detail">Observation deck views at golden hour</div></div></li>
       </ul>
     </div>
-    <span class="slide-num">08 / 09</span>
+    <span class="slide-num">09 / 10</span>
   </section>
 
   <!-- 9. Gold Coast Places To Stay -->
@@ -858,7 +1087,7 @@
         </div>
       </div>
     </div>
-    <span class="slide-num">09 / 09</span>
+    <span class="slide-num">10 / 10</span>
   </section>
 
   <!-- ══════════════════════════════
@@ -888,8 +1117,8 @@
     });
 
     /* ─── DARK / WHITE BODY CLASS (for dot colours) ─── */
-    const darkSections = ['landing', 'outro'];
-    const allSections = ['landing','melb-intro','melb-todo','melb-stay','byron-intro','byron-todo','byron-stay','gc-intro','gc-todo','gc-stay','outro'];
+    const darkSections = ['landing', 'melb-map', 'outro'];
+    const allSections = ['landing','melb-intro','melb-todo','melb-map','melb-stay','byron-intro','byron-todo','byron-stay','gc-intro','gc-todo','gc-stay','outro'];
 
     allSections.forEach(id => {
       ScrollTrigger.create({
@@ -927,8 +1156,10 @@
 
     /* ─── SLIDE REVEALS ─── */
     function revealSlide(sec) {
-      const type = sec.classList.contains('intro-slide') ? 'intro'
-                 : sec.classList.contains('todo-slide')  ? 'todo'
+      const type = sec.classList.contains('intro-slide')   ? 'intro'
+                 : sec.classList.contains('todo-slide')    ? 'todo'
+                 : sec.classList.contains('map-slide')     ? 'map'
+                 : sec.classList.contains('airbnb-slide')  ? 'airbnb'
                  : 'stay';
 
       const bc = sec.querySelector('.breadcrumb');
@@ -948,6 +1179,17 @@
           .to(sec.querySelectorAll('.todo-list li'), {
             opacity:1, x:0, duration:.55, ease:'power3.out', stagger: .08
           }, .25);
+
+      } else if (type === 'map') {
+        initFitzroyMap();
+
+      } else if (type === 'airbnb') {
+        const tl = gsap.timeline();
+        tl.to(sec.querySelector('.stay-heading'), { opacity:1, y:0, duration:1,   ease:'power3.out' }, 0)
+          .to(sec.querySelector('.stay-sub'),     { opacity:1, y:0, duration:.6,  ease:'power3.out' }, .15)
+          .to(sec.querySelectorAll('.ab-card'),   {
+            opacity:1, y:0, duration:.5, ease:'power3.out', stagger: .08
+          }, .3);
 
       } else {
         const tl = gsap.timeline();
@@ -978,6 +1220,63 @@
     }
     new IntersectionObserver(e => { if (e[0].isIntersecting) runOutro(); }, { threshold: .05 }).observe(document.getElementById('outro'));
     ScrollTrigger.create({ trigger: '#outro', start: 'top 90%', onEnter: runOutro });
+    /* ─── FITZROY MAP ─── */
+    let _mapDone = false;
+    function initFitzroyMap() {
+      if (_mapDone) return;
+      _mapDone = true;
+
+      const mapEl = document.getElementById('leaflet-map');
+      const label = document.getElementById('mapLabel');
+
+      const map = L.map('leaflet-map', {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        touchZoom: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+      });
+
+      // Esri satellite tiles — free, no API key
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 19 }
+      ).addTo(map);
+
+      // Start over Victoria at zoom 8 then fly in to Fitzroy
+      map.setView([-37.9, 144.9], 8);
+
+      // Fade map in once first tiles load
+      map.once('load', () => mapEl.classList.add('loaded'));
+      setTimeout(() => mapEl.classList.add('loaded'), 1200); // fallback
+
+      // Fly to Fitzroy after a short delay
+      setTimeout(() => {
+        map.flyTo([-37.7963, 144.9770], 16, {
+          animate: true, duration: 3.8, easeLinearity: 0.2
+        });
+      }, 600);
+
+      // Show label during fly
+      setTimeout(() => {
+        label.classList.add('visible');
+      }, 1800);
+
+      // Drop a pulsing marker when we arrive
+      setTimeout(() => {
+        const icon = L.divIcon({
+          className: '',
+          html: '<div class="fm-wrap"><div class="fm-dot"></div><div class="fm-ring"></div></div>',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+        L.marker([-37.7963, 144.9770], { icon }).addTo(map);
+      }, 4600);
+    }
+
     /* ─── MELBOURNE CAROUSEL ─── */
     function initMelbCarousel() {
       const track  = document.getElementById('mtdTrack');
