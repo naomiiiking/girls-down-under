@@ -566,7 +566,7 @@
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
     }
-    #melb-map::before, #gc-map::before { display: none; }
+    #melb-map::before, #gc-map::before, #hi-map::before { display: none; }
     #gc-map {
       background: #0a0a0a;
       overflow: hidden;
@@ -608,9 +608,34 @@
       color: white;
     }
     .map-place em { font-style: italic; color: var(--orange); }
-    #melb-map .breadcrumb, #gc-map .breadcrumb { color: rgba(255,255,255,.35); z-index: 10; }
-    #melb-map .breadcrumb span, #gc-map .breadcrumb span { color: var(--orange); }
-    #melb-map .slide-num, #gc-map .slide-num { color: rgba(255,255,255,.25); z-index: 10; }
+    #melb-map .breadcrumb, #gc-map .breadcrumb, #hi-map .breadcrumb { color: rgba(255,255,255,.35); z-index: 10; }
+    #melb-map .breadcrumb span, #gc-map .breadcrumb span, #hi-map .breadcrumb span { color: var(--orange); }
+    #melb-map .slide-num, #gc-map .slide-num, #hi-map .slide-num { color: rgba(255,255,255,.25); z-index: 10; }
+
+    /* ═══════════════════════════════════════
+       HAMILTON ISLAND MAP
+    ═══════════════════════════════════════ */
+    #hi-map {
+      background: #0a0a0a;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #hi-leaflet-map {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 1; opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+    #hi-leaflet-map.loaded { opacity: 1; }
+    #hi-map .map-vignette {
+      position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(10,10,10,.65) 100%);
+    }
+    #hi-map .map-bottom-fade {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
+      background: linear-gradient(to top, rgba(10,10,10,.85), transparent);
+      z-index: 3; pointer-events: none;
+    }
     /* Leaflet marker */
     .fm-wrap { position: relative; width: 24px; height: 24px; }
     .fm-dot {
@@ -742,6 +767,139 @@
       letter-spacing: 0;
     }
 
+    /* ═══════════════════════════════════════
+       ALTERNATIVE DESTINATION SLIDES
+    ═══════════════════════════════════════ */
+    .alt-slide {
+      flex-direction: row !important;
+      overflow: hidden;
+    }
+    .alt-left {
+      width: 50%; flex-shrink: 0;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 3.5rem 3rem 3.5rem 3.5rem;
+      border-right: 1px solid #EBEBEB;
+      overflow: hidden; position: relative;
+    }
+    .alt-eyebrow {
+      font-weight: 300; font-size: .58rem;
+      letter-spacing: .5em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: .75rem;
+      opacity: 0; transform: translateY(10px);
+    }
+    .alt-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(3.5rem, 6.5vw, 6rem); line-height: .88;
+      color: var(--black); margin-bottom: 1.1rem;
+      opacity: 0; transform: translateY(25px);
+    }
+    .alt-title em { font-style: italic; }
+    .alt-meta {
+      display: flex; align-items: center; gap: 1.75rem;
+      margin-bottom: 1.75rem;
+      opacity: 0; transform: translateY(10px);
+    }
+    .alt-meta-item { display: flex; flex-direction: column; gap: .25rem; }
+    .alt-meta-label {
+      font-weight: 300; font-size: .55rem;
+      letter-spacing: .4em; text-transform: uppercase; color: var(--grey);
+    }
+    .alt-meta-val {
+      font-weight: 300; font-size: .78rem;
+      letter-spacing: .05em; color: var(--black);
+    }
+    .alt-meta-div { width: 1px; height: 28px; background: #D8D8D8; }
+    .alt-ghost {
+      position: absolute; right: -1vw; top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: 38vw; line-height: 1; color: var(--black);
+      opacity: .025; pointer-events: none; user-select: none; z-index: 0;
+    }
+    /* 2×2 Airbnb mini-grid */
+    .alt-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .6rem; position: relative; z-index: 1;
+      opacity: 0; transform: translateY(12px);
+    }
+    .alt-card {
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid #EBEBEB; text-decoration: none;
+      display: flex; flex-direction: column;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+      background: white;
+    }
+    .alt-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      border-color: var(--orange);
+    }
+    .alt-card-img {
+      width: 100%; aspect-ratio: 16/9; background: #F0F0F0;
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .alt-card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    .alt-card-img::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 14px,
+        rgba(0,0,0,.03) 14px, rgba(0,0,0,.03) 15px
+      );
+    }
+    .alt-card-info { padding: .55rem .7rem; }
+    .alt-card-title {
+      font-weight: 400; font-size: .65rem; line-height: 1.35;
+      color: var(--black);
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .alt-card-sub {
+      font-weight: 200; font-size: .58rem;
+      letter-spacing: .08em; color: var(--grey); margin-top: .18rem;
+    }
+    .alt-card-price {
+      font-weight: 400; font-size: .68rem;
+      color: var(--black); margin-top: .18rem;
+    }
+    /* Right panel */
+    .alt-right {
+      flex: 1;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 4rem 3.5rem 4rem 3rem;
+    }
+    .alt-todo-heading {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(2.2rem, 4vw, 3.5rem); line-height: .9;
+      color: var(--black); margin-bottom: .6rem;
+      opacity: 0; transform: translateY(20px);
+    }
+    .alt-todo-heading em { font-style: italic; color: var(--orange); }
+    .alt-todo-sub {
+      font-weight: 200; font-size: .62rem;
+      letter-spacing: .3em; text-transform: uppercase;
+      color: var(--grey); margin-bottom: 1.1rem;
+      opacity: 0; transform: translateY(10px);
+    }
+    .alt-todo-list { list-style: none; }
+    .alt-todo-list li {
+      display: flex; align-items: baseline; gap: 1rem;
+      padding: .6rem 0; border-bottom: 1px solid #EBEBEB;
+      opacity: 0; transform: translateX(12px);
+    }
+    .alt-todo-list li:first-child { border-top: 1px solid #EBEBEB; }
+    .alt-num {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: .82rem; color: var(--orange); min-width: 18px;
+    }
+    .alt-text {
+      font-weight: 300; font-size: .82rem;
+      letter-spacing: .03em; color: var(--black); line-height: 1.35;
+    }
+    .alt-detail {
+      font-weight: 200; font-size: .7rem;
+      color: var(--grey); margin-top: .1rem;
+    }
+
     /* ─── GRAIN ─── */
     body::after {
       content: ''; position: fixed; inset: 0;
@@ -768,6 +926,13 @@
     <button class="sdot" data-t="gc-todo"></button>
     <button class="sdot" data-t="gc-map"></button>
     <button class="sdot" data-t="gc-stay"></button>
+    <button class="sdot" data-t="hi-intro"></button>
+    <button class="sdot" data-t="hi-todo"></button>
+    <button class="sdot" data-t="hi-map"></button>
+    <button class="sdot" data-t="hi-stay"></button>
+    <button class="sdot" data-t="sydney-alt"></button>
+    <button class="sdot" data-t="noosa-alt"></button>
+    <button class="sdot" data-t="cairns-alt"></button>
     <button class="sdot" data-t="outro"></button>
   </nav>
 
@@ -802,7 +967,7 @@
       <h2 class="vi-title">Mel<em>bourne</em></h2>
       <p class="vi-stay"><strong>Stay:</strong> 4 nights</p>
     </div>
-    <span class="slide-num" style="color:rgba(255,255,255,.5);">01 / 08</span>
+    <span class="slide-num" style="color:rgba(255,255,255,.5);">01 / 15</span>
   </section>
 
   <!-- 2. Melbourne Things To Do -->
@@ -915,7 +1080,7 @@
       </div>
     </div>
 
-    <span class="slide-num">02 / 08</span>
+    <span class="slide-num">02 / 15</span>
   </section>
 
   <!-- 3. Melbourne Map Transition -->
@@ -928,7 +1093,7 @@
       <p class="map-eyebrow">We're staying in</p>
       <h2 class="map-place">Fitz<em>roy</em></h2>
     </div>
-    <span class="slide-num">03 / 08</span>
+    <span class="slide-num">03 / 15</span>
   </section>
 
   <!-- 4. Melbourne Where To Stay — Airbnb Grid -->
@@ -1025,7 +1190,7 @@
 
       </div>
     </div>
-    <span class="slide-num">04 / 08</span>
+    <span class="slide-num">04 / 15</span>
   </section>
 
   <!-- ══════════════════════════════
@@ -1057,7 +1222,7 @@
       </div>
       <p class="intro-desc">The perfect finale. Golden beaches, endless sunshine and a buzzing restaurant and nightlife scene. Go out with a bang.</p>
     </div>
-    <span class="slide-num">05 / 08</span>
+    <span class="slide-num">05 / 15</span>
   </section>
 
   <!-- 6. Gold Coast Things To Do — carousel -->
@@ -1227,7 +1392,7 @@
       </div>
     </div>
 
-    <span class="slide-num">06 / 08</span>
+    <span class="slide-num">06 / 15</span>
   </section>
 
   <!-- 7. Gold Coast Map Transition -->
@@ -1240,7 +1405,7 @@
       <p class="map-eyebrow">We're staying in</p>
       <h2 class="map-place">Bur<em>leigh</em><br>Heads</h2>
     </div>
-    <span class="slide-num">07 / 08</span>
+    <span class="slide-num">07 / 15</span>
   </section>
 
   <!-- 8. Gold Coast Where To Stay — Airbnb Grid -->
@@ -1337,16 +1502,491 @@
 
       </div>
     </div>
-    <span class="slide-num">08 / 08</span>
+    <span class="slide-num">08 / 15</span>
+  </section>
+
+  <!-- ══════════════════════════════
+       HAMILTON ISLAND
+  ══════════════════════════════ -->
+
+  <!-- 9. Hamilton Island Intro -->
+  <section class="slide intro-slide" id="hi-intro">
+    <p class="breadcrumb">Hamilton Island</p>
+    <span class="intro-ghost">H</span>
+    <div class="inner">
+      <p class="intro-loc">Stop Three</p>
+      <h2 class="intro-name">Hamil<em>ton</em><br>Island</h2>
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Dates</span>
+          <span class="intro-meta-val">April 18 – 22</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Nights</span>
+          <span class="intro-meta-val">4 nights</span>
+        </div>
+        <div class="intro-meta-div"></div>
+        <div class="intro-meta-item">
+          <span class="intro-meta-label">Vibe</span>
+          <span class="intro-meta-val">Reef, buggy &amp; island life</span>
+        </div>
+      </div>
+      <p class="intro-desc">Tropical paradise in the heart of the Whitsundays. The Great Barrier Reef on your doorstep, golf buggies instead of cars, and the clearest water you've ever seen.</p>
+    </div>
+    <span class="slide-num">09 / 15</span>
+  </section>
+
+  <!-- 10. Hamilton Island Things To Do — carousel -->
+  <section class="slide" id="hi-todo">
+    <p class="breadcrumb"><span>Hamilton Island</span> / Things To Do</p>
+
+    <div class="mtd-left">
+      <p class="mtd-eyebrow">Hamilton Island</p>
+      <h2 class="mtd-heading">Things<br><em>To Do</em></h2>
+      <div class="mtd-dots">
+        <button class="mtd-dot active" data-i="0"></button>
+        <button class="mtd-dot" data-i="1"></button>
+        <button class="mtd-dot" data-i="2"></button>
+        <button class="mtd-dot" data-i="3"></button>
+        <button class="mtd-dot" data-i="4"></button>
+        <button class="mtd-dot" data-i="5"></button>
+        <button class="mtd-dot" data-i="6"></button>
+        <button class="mtd-dot" data-i="7"></button>
+        <button class="mtd-dot" data-i="8"></button>
+      </div>
+    </div>
+
+    <div class="mtd-right">
+      <div class="mtd-track" id="hiTrack">
+
+        <div class="mtd-card active">
+          <div class="mtd-img"><img src="./hamilton island/snorkel.png" alt="Great Barrier Reef"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">01</span>
+            <h3 class="mtd-title">Great Barrier Reef</h3>
+            <p class="mtd-sub">Snorkel!!!</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/golfbuggy.png" alt="Hire a Golf Buggy"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">02</span>
+            <h3 class="mtd-title">Hire a Golf Buggy</h3>
+            <p class="mtd-sub">I will drive</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/whitebeaches.png" alt="White Sand Beaches"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">03</span>
+            <h3 class="mtd-title">White Sand Beaches</h3>
+            <p class="mtd-sub">Beach tf out</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/jetski.png" alt="Jetski"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">04</span>
+            <h3 class="mtd-title">Jetski</h3>
+            <p class="mtd-sub">In the proper ocean</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/boatparty.jpg" alt="Party Boat Day Tour"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">05</span>
+            <h3 class="mtd-title">Party (or not) Boat Day Tour</h3>
+            <p class="mtd-sub">Lowkey this will be full of British</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/kayak.png" alt="Kayak or Standup Paddle Board"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">06</span>
+            <h3 class="mtd-title">Kayak or Standup Paddle Board</h3>
+            <p class="mtd-sub">On the most clear waters everrr</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/wildlifepark.png" alt="Wildlife Park"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">07</span>
+            <h3 class="mtd-title">Visit the Wildlife Park</h3>
+            <p class="mtd-sub">Talk to a Koala</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/barhop.png" alt="Bar Hop"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">08</span>
+            <h3 class="mtd-title">Bar Hop</h3>
+            <p class="mtd-sub">The random hotel pools and bars</p>
+          </div>
+        </div>
+
+        <div class="mtd-card">
+          <div class="mtd-img"><img src="./hamilton island/hiking.png" alt="Hike"></div>
+          <div class="mtd-info">
+            <span class="mtd-num">09</span>
+            <h3 class="mtd-title">Hike</h3>
+            <p class="mtd-sub">To hidden beaches and reefs</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <span class="slide-num">10 / 15</span>
+  </section>
+
+  <!-- 11. Hamilton Island Map Transition -->
+  <section class="slide map-slide" id="hi-map">
+    <p class="breadcrumb"><span>Hamilton Island</span> / Where To Stay</p>
+    <div id="hi-leaflet-map"></div>
+    <div class="map-vignette"></div>
+    <div class="map-bottom-fade"></div>
+    <div class="map-label" id="hiMapLabel">
+      <p class="map-eyebrow">We're staying in</p>
+      <h2 class="map-place">Hamil<em>ton</em><br>Island</h2>
+    </div>
+    <span class="slide-num">11 / 15</span>
+  </section>
+
+  <!-- 12. Hamilton Island Where To Stay — Airbnb Grid -->
+  <section class="slide airbnb-slide" id="hi-stay">
+    <p class="breadcrumb"><span>Hamilton Island</span> / Where To Stay</p>
+    <div class="ab-left">
+      <h2 class="stay-heading">Where<br><em>To Stay</em></h2>
+      <p class="stay-sub">Hamilton Island</p>
+      <div class="ab-note">
+        <p>6 options · sorted by price</p>
+        <span>All on Hamilton Island — wake up in the heart of the Whitsundays. Prices per person per night for 6.</span>
+      </div>
+    </div>
+    <div class="ab-right">
+      <div class="ab-grid">
+
+        <!-- 1 · Oasis 15 · £44pp/night -->
+        <a class="ab-card" href="https://www.airbnb.co.uk/rooms/643745614850939794" target="_blank">
+          <img class="ab-img" src="./hamilton island/oasisapartment15byhiha.avif" alt="Oasis Apartment 15 by HIHA">
+          <div class="ab-info">
+            <p class="ab-title">Oasis Apartment 15 by HIHA</p>
+            <div class="ab-meta">
+              <span class="ab-beds">6 guests · pool · BBQ</span>
+              <p class="ab-price">£44<sup>pp/night</sup></p>
+            </div>
+            <p class="ab-hint">Hamilton Island · £1,832 total</p>
+          </div>
+        </a>
+
+        <!-- 2 · Waves 1 · £50pp/night -->
+        <a class="ab-card" href="https://www.airbnb.co.uk/rooms/953211952132338392" target="_blank">
+          <img class="ab-img" src="./hamilton island/Waves 1 Hamilton Island - Ocean Views and buggy .avif" alt="Waves 1 Hamilton Island">
+          <div class="ab-info">
+            <p class="ab-title">Waves 1 — Ocean Views &amp; Buggy</p>
+            <div class="ab-meta">
+              <span class="ab-beds">3 beds · 2 baths · buggy</span>
+              <p class="ab-price">£50<sup>pp/night</sup></p>
+            </div>
+            <p class="ab-hint">Hamilton Island · £1,499 total · ocean views</p>
+          </div>
+        </a>
+
+        <!-- 3 · Blue Water Views 3 · £51pp/night -->
+        <a class="ab-card" href="https://www.airbnb.co.uk/rooms/1624322954324675064" target="_blank">
+          <img class="ab-img" src="./hamilton island/Blue Water Views 3 & Free buggy - Hamilton Island  .avif" alt="Blue Water Views 3">
+          <div class="ab-info">
+            <p class="ab-title">Blue Water Views 3 &amp; Free Buggy</p>
+            <div class="ab-meta">
+              <span class="ab-beds">6 guests · pool · free buggy</span>
+              <p class="ab-price">£51<sup>pp/night</sup></p>
+            </div>
+            <p class="ab-hint">Hamilton Island · £2,140 total</p>
+          </div>
+        </a>
+
+        <!-- 4 · Oasis 19 · £56pp/night -->
+        <a class="ab-card" href="https://www.airbnb.co.uk/rooms/38169119" target="_blank">
+          <img class="ab-img" src="./hamilton island/Oasis 19, Hamilton Island  .avif" alt="Oasis 19 Hamilton Island">
+          <div class="ab-info">
+            <p class="ab-title">Oasis 19, Hamilton Island</p>
+            <div class="ab-meta">
+              <span class="ab-beds">2 beds · 2 baths · buggy + valet</span>
+              <p class="ab-price">£56<sup>pp/night</sup></p>
+            </div>
+            <p class="ab-hint">Hamilton Island · £2,338 total · water views</p>
+          </div>
+        </a>
+
+        <!-- 5 · Shorelines 21 · £62pp/night -->
+        <a class="ab-card" href="https://www.airbnb.co.uk/rooms/1309729183465363549" target="_blank">
+          <img class="ab-img" src="./hamilton island/Shorelines 21  .avif" alt="Shorelines 21">
+          <div class="ab-info">
+            <p class="ab-title">Shorelines 21</p>
+            <div class="ab-meta">
+              <span class="ab-beds">2 beds · 2 pools · buggy</span>
+              <p class="ab-price">£62<sup>pp/night</sup></p>
+            </div>
+            <p class="ab-hint">Hamilton Island · £2,583 total · marina views</p>
+          </div>
+        </a>
+
+        <!-- 6 · Casuarina Cove 13 · £63pp/night -->
+        <a class="ab-card" href="https://www.airbnb.co.uk/rooms/20125487" target="_blank">
+          <img class="ab-img" src="./hamilton island/Casuarina Cove 13 on Hamilton Island by HamoRent  .avif" alt="Casuarina Cove 13">
+          <div class="ab-info">
+            <p class="ab-title">Casuarina Cove 13 by HamoRent</p>
+            <div class="ab-meta">
+              <span class="ab-beds">8 guests · ocean view · resort</span>
+              <p class="ab-price">£63<sup>pp/night</sup></p>
+            </div>
+            <p class="ab-hint">Hamilton Island · £2,640 total · resort access</p>
+          </div>
+        </a>
+
+      </div>
+    </div>
+    <span class="slide-num">12 / 15</span>
+  </section>
+
+  <!-- ══════════════════════════════
+       ALTERNATIVE DESTINATIONS
+  ══════════════════════════════ -->
+
+  <!-- 13. Sydney -->
+  <section class="slide alt-slide" id="sydney-alt">
+    <p class="breadcrumb"><span>Alternative</span> / Sydney</p>
+    <div class="alt-left">
+      <span class="alt-ghost">S</span>
+      <p class="alt-eyebrow">Alternative Destination</p>
+      <h2 class="alt-title">Syd<em>ney</em></h2>
+      <div class="alt-meta">
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Country</span>
+          <span class="alt-meta-val">Gadigal · Eora</span>
+        </div>
+        <div class="alt-meta-div"></div>
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Nights</span>
+          <span class="alt-meta-val">TBC</span>
+        </div>
+        <div class="alt-meta-div"></div>
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Vibe</span>
+          <span class="alt-meta-val">Iconic · Harbour · Beaches</span>
+        </div>
+      </div>
+      <div class="alt-grid">
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="alt-right">
+      <h3 class="alt-todo-heading">Things<br><em>To Do</em></h3>
+      <p class="alt-todo-sub">Sydney</p>
+      <ul class="alt-todo-list">
+        <li><span class="alt-num">01</span><div><p class="alt-text">Coastal Walk</p><p class="alt-detail">Bondi to Coogee — iconic cliffside views</p></div></li>
+        <li><span class="alt-num">02</span><div><p class="alt-text">Climb the Harbour Bridge</p><p class="alt-detail">Best views in the city, full stop</p></div></li>
+        <li><span class="alt-num">03</span><div><p class="alt-text">Ferry to Manly Beach</p><p class="alt-detail">Harbour ferry + beach day combo</p></div></li>
+        <li><span class="alt-num">04</span><div><p class="alt-text">Night out in Newtown</p><p class="alt-detail">Bars, live music &amp; late-night food</p></div></li>
+        <li><span class="alt-num">05</span><div><p class="alt-text">Art Gallery of NSW</p><p class="alt-detail">Free entry, great architecture, good café</p></div></li>
+        <li><span class="alt-num">06</span><div><p class="alt-text">Day trip to the Blue Mountains</p><p class="alt-detail">Three Sisters, waterfalls &amp; rainforest walks</p></div></li>
+      </ul>
+    </div>
+    <span class="slide-num">13 / 15</span>
+  </section>
+
+  <!-- 14. Noosa -->
+  <section class="slide alt-slide" id="noosa-alt">
+    <p class="breadcrumb"><span>Alternative</span> / Noosa</p>
+    <div class="alt-left">
+      <span class="alt-ghost">N</span>
+      <p class="alt-eyebrow">Alternative Destination</p>
+      <h2 class="alt-title">Noo<em>sa</em></h2>
+      <div class="alt-meta">
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Country</span>
+          <span class="alt-meta-val">Kabi Kabi</span>
+        </div>
+        <div class="alt-meta-div"></div>
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Nights</span>
+          <span class="alt-meta-val">TBC</span>
+        </div>
+        <div class="alt-meta-div"></div>
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Vibe</span>
+          <span class="alt-meta-val">Relaxed · Beachy · Boutique</span>
+        </div>
+      </div>
+      <div class="alt-grid">
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="alt-right">
+      <h3 class="alt-todo-heading">Things<br><em>To Do</em></h3>
+      <p class="alt-todo-sub">Noosa</p>
+      <ul class="alt-todo-list">
+        <li><span class="alt-num">01</span><div><p class="alt-text">Noosa National Park Hike</p><p class="alt-detail">Koalas basically guaranteed on the trail</p></div></li>
+        <li><span class="alt-num">02</span><div><p class="alt-text">Kayak the Everglades</p><p class="alt-detail">Mirror-still water through ancient paperbark forest</p></div></li>
+        <li><span class="alt-num">03</span><div><p class="alt-text">Hastings Street</p><p class="alt-detail">Eat, shop, coffee, repeat forever</p></div></li>
+        <li><span class="alt-num">04</span><div><p class="alt-text">Surf Lesson at Main Beach</p><p class="alt-detail">Small waves, warm water, no excuses</p></div></li>
+        <li><span class="alt-num">05</span><div><p class="alt-text">Sunset on the Headland</p><p class="alt-detail">The best free thing you'll do all trip</p></div></li>
+        <li><span class="alt-num">06</span><div><p class="alt-text">Boat to the Coloured Sands</p><p class="alt-detail">Rainbow cliffs by water — totally surreal</p></div></li>
+      </ul>
+    </div>
+    <span class="slide-num">14 / 15</span>
+  </section>
+
+  <!-- 15. Cairns -->
+  <section class="slide alt-slide" id="cairns-alt">
+    <p class="breadcrumb"><span>Alternative</span> / Cairns</p>
+    <div class="alt-left">
+      <span class="alt-ghost">C</span>
+      <p class="alt-eyebrow">Alternative Destination</p>
+      <h2 class="alt-title">Cair<em>ns</em></h2>
+      <div class="alt-meta">
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Country</span>
+          <span class="alt-meta-val">Gimuy · Yirrganydji</span>
+        </div>
+        <div class="alt-meta-div"></div>
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Nights</span>
+          <span class="alt-meta-val">TBC</span>
+        </div>
+        <div class="alt-meta-div"></div>
+        <div class="alt-meta-item">
+          <span class="alt-meta-label">Vibe</span>
+          <span class="alt-meta-val">Wild · Tropical · Reef</span>
+        </div>
+      </div>
+      <div class="alt-grid">
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+        <a class="alt-card" href="#" target="_blank">
+          <div class="alt-card-img"></div>
+          <div class="alt-card-info">
+            <p class="alt-card-title">Add listing here</p>
+            <p class="alt-card-sub">TBC beds · TBC baths</p>
+            <p class="alt-card-price">£TBC pp/night</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="alt-right">
+      <h3 class="alt-todo-heading">Things<br><em>To Do</em></h3>
+      <p class="alt-todo-sub">Cairns</p>
+      <ul class="alt-todo-list">
+        <li><span class="alt-num">01</span><div><p class="alt-text">Great Barrier Reef Day Trip</p><p class="alt-detail">Snorkel or dive — the real thing, from Cairns</p></div></li>
+        <li><span class="alt-num">02</span><div><p class="alt-text">Daintree Rainforest</p><p class="alt-detail">Oldest rainforest on Earth + Cape Tribulation</p></div></li>
+        <li><span class="alt-num">03</span><div><p class="alt-text">Esplanade Lagoon Swim</p><p class="alt-detail">Free outdoor pool right on the waterfront</p></div></li>
+        <li><span class="alt-num">04</span><div><p class="alt-text">Skydive over the Coral Sea</p><p class="alt-detail">14,000ft — the views are absolutely unreal</p></div></li>
+        <li><span class="alt-num">05</span><div><p class="alt-text">Hot Air Balloon at Sunrise</p><p class="alt-detail">Over the Atherton Tablelands — worth the 4am start</p></div></li>
+        <li><span class="alt-num">06</span><div><p class="alt-text">Kuranda Scenic Railway</p><p class="alt-detail">Rainforest village + heritage train through the mountains</p></div></li>
+      </ul>
+    </div>
+    <span class="slide-num">15 / 15</span>
   </section>
 
   <!-- ══════════════════════════════
        OUTRO
   ══════════════════════════════ -->
   <section id="outro">
-    <p class="outro-tag">2 Destinations &nbsp;·&nbsp; 10 Days &nbsp;·&nbsp; One Epic Trip</p>
+    <p class="outro-tag">3 Destinations &nbsp;·&nbsp; 18 Days &nbsp;·&nbsp; One Epic Trip</p>
     <h2 class="outro-title">See you<br><em>Down Under</em></h2>
-    <p class="outro-date">April 4 – 18, 2027</p>
+    <p class="outro-date">April 4 – 22, 2027</p>
   </section>
 
   <script>
@@ -1367,8 +2007,8 @@
     });
 
     /* ─── DARK / WHITE BODY CLASS (for dot colours) ─── */
-    const darkSections = ['landing', 'melb-intro', 'melb-map', 'gc-map', 'outro'];
-    const allSections = ['landing','melb-intro','melb-todo','melb-map','melb-stay','gc-intro','gc-todo','gc-map','gc-stay','outro'];
+    const darkSections = ['landing', 'melb-intro', 'melb-map', 'gc-map', 'hi-map', 'outro'];
+    const allSections = ['landing','melb-intro','melb-todo','melb-map','melb-stay','gc-intro','gc-todo','gc-map','gc-stay','hi-intro','hi-todo','hi-map','hi-stay','sydney-alt','noosa-alt','cairns-alt','outro'];
 
     allSections.forEach(id => {
       ScrollTrigger.create({
@@ -1411,6 +2051,7 @@
                  : sec.classList.contains('todo-slide')    ? 'todo'
                  : sec.classList.contains('map-slide')     ? 'map'
                  : sec.classList.contains('airbnb-slide')  ? 'airbnb'
+                 : sec.classList.contains('alt-slide')     ? 'alt'
                  : 'stay';
 
       const bc = sec.querySelector('.breadcrumb');
@@ -1440,6 +2081,7 @@
       } else if (type === 'map') {
         if (sec.id === 'melb-map') initFitzroyMap();
         else if (sec.id === 'gc-map') initBurleighMap();
+        else if (sec.id === 'hi-map') initHamiltonIslandMap();
 
       } else if (type === 'airbnb') {
         const tl = gsap.timeline();
@@ -1448,6 +2090,18 @@
           .to(sec.querySelectorAll('.ab-card'),   {
             opacity:1, y:0, duration:.5, ease:'power3.out', stagger: .08
           }, .3);
+
+      } else if (type === 'alt') {
+        const tl = gsap.timeline();
+        tl.to(sec.querySelector('.alt-eyebrow'),    { opacity:1, y:0, duration:.5, ease:'power3.out' }, 0)
+          .to(sec.querySelector('.alt-title'),      { opacity:1, y:0, duration:1,  ease:'power3.out' }, .1)
+          .to(sec.querySelector('.alt-meta'),       { opacity:1, y:0, duration:.6, ease:'power3.out' }, .25)
+          .to(sec.querySelector('.alt-grid'),       { opacity:1, y:0, duration:.7, ease:'power3.out' }, .35)
+          .to(sec.querySelector('.alt-todo-heading'),{ opacity:1, y:0, duration:1, ease:'power3.out' }, .1)
+          .to(sec.querySelector('.alt-todo-sub'),   { opacity:1, y:0, duration:.5, ease:'power3.out' }, .2)
+          .to(sec.querySelectorAll('.alt-todo-list li'), {
+            opacity:1, x:0, duration:.45, ease:'power3.out', stagger:.08
+          }, .35);
 
       } else {
         const tl = gsap.timeline();
@@ -1658,6 +2312,84 @@
     }
 
     initGCCarousel();
+
+    /* ─── HAMILTON ISLAND CAROUSEL ─── */
+    function initHICarousel() {
+      const track = document.getElementById('hiTrack');
+      const cards = document.querySelectorAll('#hi-todo .mtd-card');
+      const dots  = document.querySelectorAll('#hi-todo .mtd-dot');
+      let current = 0, timer;
+
+      function goTo(i) {
+        cards[current].classList.remove('active'); dots[current].classList.remove('active');
+        current = i;
+        cards[current].classList.add('active'); dots[current].classList.add('active');
+        const cardH = cards[0].offsetHeight;
+        track.style.transform = `translateY(-${i * (cardH + 16)}px)`;
+      }
+      function next() { goTo((current + 1) % cards.length); }
+      function start() { timer = setInterval(next, 3800); }
+      function stop()  { clearInterval(timer); }
+
+      dots.forEach((d, i) => d.addEventListener('click', () => { stop(); goTo(i); start(); }));
+      cards.forEach((c, i) => c.addEventListener('click', () => { if (i !== current) { stop(); goTo(i); start(); } }));
+
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) start(); else stop();
+      }, { threshold: .1 });
+      io.observe(document.getElementById('hi-todo'));
+    }
+
+    initHICarousel();
+
+    /* ─── HAMILTON ISLAND MAP ─── */
+    let _hiMapDone = false;
+    function initHamiltonIslandMap() {
+      if (_hiMapDone) return;
+      _hiMapDone = true;
+
+      const mapEl = document.getElementById('hi-leaflet-map');
+      const label = document.getElementById('hiMapLabel');
+
+      const map = L.map('hi-leaflet-map', {
+        zoomControl: false, attributionControl: false,
+        dragging: false, touchZoom: false, scrollWheelZoom: false,
+        doubleClickZoom: false, boxZoom: false, keyboard: false,
+      });
+
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 19 }
+      ).addTo(map);
+
+      // Start over Queensland then fly into Hamilton Island
+      map.setView([-20.0, 148.0], 7);
+
+      map.once('load', () => mapEl.classList.add('loaded'));
+      setTimeout(() => mapEl.classList.add('loaded'), 1200);
+
+      setTimeout(() => {
+        map.flyTo([-20.3437, 148.9490], 14, {
+          animate: true, duration: 6.5, easeLinearity: 0.15
+        });
+      }, 700);
+
+      setTimeout(() => { label.classList.add('visible'); }, 3500);
+
+      setTimeout(() => {
+        L.circle([-20.3437, 148.9490], {
+          radius: 500, color: '#1ACC82', weight: 2,
+          opacity: 0.8, fillColor: '#1ACC82', fillOpacity: 0.15,
+        }).addTo(map);
+
+        const icon = L.divIcon({
+          className: '',
+          html: '<div class="fm-wrap"><div class="fm-dot"></div><div class="fm-ring"></div></div>',
+          iconSize: [24, 24], iconAnchor: [12, 12]
+        });
+        L.marker([-20.3437, 148.9490], { icon }).addTo(map);
+      }, 7400);
+    }
 
   </script>
 </body>
